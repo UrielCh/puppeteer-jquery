@@ -14,8 +14,8 @@ Typescript allows you to use JQuery into your remote browser without conflict, a
 This puppeteer does not expose many of his classes, so to register my extension, I need an instance of `Page` to patch its prototype.
 so there are two ways to setup this jquery:
 * Using at least one time the `function pageExtend(page: Page): PageEx`
-* Calling `function setupJQuery(): Promise<BrowserEx>` once that will create and destroy an headless browser.
-the JQuery extra code won't be add to any of your page until you use it.
+* Calling `function setupJQuery(): Promise<BrowserEx>` once that will create and enable jQuery in an headless browser.
+The JQuery extra code won't be add to any of your page until you use it.
 
 ### Usage
 

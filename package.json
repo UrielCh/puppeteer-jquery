@@ -1,13 +1,13 @@
 {
   "name": "puppeteer-jquery",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Fluent jquery integration for puppeteer",
   "main": "src/index.js",
   "typings": "src/index.d.ts",
   "scripts": {
     "build": "tsc -p .",
     "clean": "rimraf src/*.js src/*.map src/*.d.ts test/*.js test/*.map test/*.d.ts",
-    "test": "mocha --exit -r ts-node/register test/**/*.spec.ts",
+    "test": "mocha -r ts-node/register test/**/*.spec.ts",
     "prepare": "npm run clean && npm run build && npm run test"
   },
   "repository": {

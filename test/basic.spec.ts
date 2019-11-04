@@ -1,16 +1,14 @@
 import { expect } from 'chai';
-import { launch } from 'puppeteer';
 import { setupJQuery, BrowserEx, PageEx } from '../src';
 
 let browser: BrowserEx;
 let page: PageEx;
 
 before(async () => {
-    await setupJQuery();
-    browser = await launch({
+    browser = await setupJQuery({
         headless: false,
         args: [],
-    }) as BrowserEx;    
+    });
     page = await browser.newPage();
 });
 

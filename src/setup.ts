@@ -1,4 +1,4 @@
-import { Page, launch, Browser } from "puppeteer";
+import { Page, launch, Browser, LaunchOptions } from "puppeteer";
 import { JQueryAble, IJQueryAble } from './jQueryPlugin';
 
 /**
@@ -32,8 +32,10 @@ export const pageExtend = (page: Page): PageEx => {
     return page as PageEx;
 }
 
-export async function setupJQuery(): Promise<BrowserEx> {
-    let browser = await launch({ headless: true });
+export async function setupJQuery(options?: LaunchOptions): Promise<BrowserEx> {
+    if (!options)
+        options = { headless: true };
+    let browser = await launch(options);
     let page = await browser.newPage();
     pageExtend(page);
     return browser as BrowserEx;
