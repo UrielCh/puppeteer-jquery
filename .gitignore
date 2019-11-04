@@ -1,4 +1,7 @@
 node_modules
-*.js
-*.map
-*.d.ts
+src/*.js
+src/*.map
+src/*.d.ts
+test/*.js
+test/*.map
+test/*.d.ts
