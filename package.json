@@ -1,0 +1,43 @@
+{
+  "name": "puppeteer-jquery",
+  "version": "0.1.0",
+  "description": "Fluent jquery integration for puppeteer",
+  "main": "src/index.js",
+  "typings": "src/index.d.ts",
+  "scripts": {
+    "build": "tsc -p .",
+    "clean": "rimraf src/*.js src/*.map src/*.d.ts test/*.js test/*.map test/*.d.ts",
+    "test": "mocha --exit -r ts-node/register test/**/*.spec.ts",
+    "prepare": "npm run clean && npm run build && npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UrielCh/puppeteer-jquery.git"
+  },
+  "keywords": [
+    "jquery",
+    "puppeteer"
+  ],
+  "author": "uriel Chemouni <uchemouni@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/UrielCh/puppeteer-jquery/issues"
+  },
+  "homepage": "https://github.com/UrielCh/puppeteer-jquery#readme",
+  "devDependencies": {
+    "@types/chai": "^4.2.4",
+    "@types/mocha": "^5.2.7",
+    "@types/puppeteer": "^1.20.2",
+    "chai": "^4.2.0",
+    "mocha": "^6.2.2",
+    "puppeteer": "^2.0.0",
+    "rimraf": "^3.0.0",
+    "ts-node": "^8.4.1",
+    "typescript": "^3.6.4"
+  },
+  "dependencies": {},
+  "files": [
+    "src",
+    "data"
+  ]
+}
