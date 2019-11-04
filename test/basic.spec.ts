@@ -3,10 +3,11 @@ import { setupJQuery, BrowserEx, PageEx } from '../src';
 
 let browser: BrowserEx;
 let page: PageEx;
+var jQuery: JQueryStatic;
 
 before(async () => {
     browser = await setupJQuery({
-        headless: false,
+        headless: true,
         args: [],
     });
     page = await browser.newPage();
@@ -40,26 +41,38 @@ describe('Basic Dom', () => {
     }).timeout(2000);
 
     it('append h2', async () => {
-        await page.jQuery('body').append(`<h2>Heading</h2>`);
+        await page.jQuery('body').append(`<h2>Head 1</h2>`);
         let h2Texts = await page.jQuery('h2').text();
-        expect(h2Texts).equal('Heading');
+        expect(h2Texts).equal('Head 1');
     }).timeout(2000);
 
     it('append h2 with arrow function', async () => {
-        await page.jQuery('body').append(() => `<h2>Heading</h2>`);
+        await page.jQuery('body').append(() => `<h2>Head 2</h2>`);
         let h2Texts = await page.jQuery('h2').text();
-        expect(h2Texts).equal('HeadingHeading');
+        expect(h2Texts).equal('Head 1Head 2');
     }).timeout(2000);
 
     it('append h2 with full function', async () => {
-        await page.jQuery('body').append((index: number, html: string) => { return `<h2>Heading</h2>` });
+        await page.jQuery('body').append((index: number, html: string) => { return `<h2>Head 3</h2>` });
         let h2Texts = await page.jQuery('h2').text();
-        expect(h2Texts).equal('HeadingHeadingHeading');
+        expect(h2Texts).equal('Head 1Head 2Head 3');
     }).timeout(2000);
 
     it('append h2 with full function using args', async () => {
-        await page.jQuery('body').append((index: number, html: string) => { return `<h2>Heading ${index}</h2>` });
+        await page.jQuery('body').append((index: number, html: string) => { return `<h2>index ${index}</h2>` });
         let h2Texts = await page.jQuery('h2').text();
-        expect(h2Texts).equal('HeadingHeadingHeadingHeading 0');
+        expect(h2Texts).equal('Head 1Head 2Head 3index 0');
+    }).timeout(2000);
+
+    it('map fnc to POJO Basic', async () => {
+        const ids = await page.jQuery('h2').map((id, elm)=>id).pojo();
+        const expected = [0,1,2,3];
+        expect(ids).eql(expected);
+    }).timeout(2000);
+    
+    it('map fnc to POJO Advanced', async () => {
+        const ids = await page.jQuery('h2').map((id, elm) => jQuery(elm).text()).pojo();
+        const expected = ['Head 1', 'Head 2', 'Head 3', 'index 0'];
+        expect(ids).eql(expected);
     }).timeout(2000);
 });

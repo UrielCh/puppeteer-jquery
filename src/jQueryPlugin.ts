@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import { PJQuery } from "./PJQuery";
 import { Page, WrapElementHandle } from "puppeteer";
 
@@ -25,7 +26,6 @@ export const randName = () => {
     let c1 = Math.floor((Math.random() * 25));
     return 'abcdefghijklmnopqrstuvwxyz'[c1] + '_' + Number(String(Math.random()).substr(2)).toString(36);
 };
-
 
 /**
  * internal used isString funtion
@@ -54,12 +54,17 @@ const handlerRoot = <ProxyHandler<PProxyApi>>{
              */
             case 'then': // start exec Promise
                 return (...args: any) => {
-                    const lastExec = target.exec(false);
+                    const lastExec = target.exec(true, false);
                     return lastExec.then(...args);
                 }
             case 'exec': // start exec Promise
                 return (...args: any) => {
-                    return target.exec(false);
+                    return target.exec(true, false);
+                }
+            case 'pojo': // start exec Promise
+                return (...args: any) => {
+                    // console.log('csll exec ', args);
+                    return target.exec(true, true);
                 }
         }
         return (...args: any) => {
@@ -68,7 +73,7 @@ const handlerRoot = <ProxyHandler<PProxyApi>>{
                     return JSON.stringify(arg)
                 }
                 if (typeof arg === 'function') {
-                    return arg.toString();
+                    return arg.toString().replace(/jQuery\(/g, `${jQueryName}(`);
                 }
                 // is POJO
                 return JSON.stringify(arg)
@@ -81,7 +86,7 @@ const handlerRoot = <ProxyHandler<PProxyApi>>{
                     case 'val':
                     case 'css':
                         const tmp = new PProxyApi(target.page, target.selector, newCode)
-                        return tmp.exec(true);
+                        return tmp.exec(false, true);
                 }
             }
             let child = new PProxyApi(target.page, target.selector, newCode);
@@ -107,15 +112,18 @@ class PProxyApi {
     toString(): string {
         return 'JQuery selector based on:' + this.page
     }
-
-    async exec<R>(isPOJO: boolean): Promise<any | WrapElementHandle<R[]>> {
+    /**
+     * @param toArray must be set to true is the object is a jQuery
+     * @param isPOJO must be set to true if waiting for plain data, fals is waiting for HTMLElements
+     */
+    async exec<R>(toArray: boolean, isPOJO: boolean): Promise<any | WrapElementHandle<R[]>> {
         let code = `${jQueryName}('${this.selector.replace(/'/g, "\\\'")}')`;
         code += this.code;
-        if (!isPOJO)
+        if (toArray)
             code += `.toArray()`;
         let handle;
         const { page } = this;
-        // console.log(code);
+        // console.log(code, "POJO is", isPOJO);
         try {
             try {
                 handle = await page.evaluateHandle(code);
@@ -123,7 +131,7 @@ class PProxyApi {
                 if (!jQueryData) {
                     // Sync call, do not want to force nodejs 10+ nor adding js-extra, not using a call back here
                     // nor adding a new Promise statement that would take as much space as this comment...
-                    const jqData = fs.readFileSync('data/jquery-3.4.1.js', { encoding: 'utf-8' });
+                    const jqData = fs.readFileSync(path.join(__dirname, '..', 'data', 'jquery-3.4.1.js'), { encoding: 'utf-8' });
                     jQueryData = '//# sourceURL=jquery.js\n' + jqData.replace('window.jQuery = window.$ = jQuery', `window.${jQueryName} = jQuery`);
                     // TODO add minify code.
                 }
@@ -139,17 +147,15 @@ class PProxyApi {
                 await handle.dispose();
                 return value;
             }
-            else {
-                const array = [];
-                const properties = await handle.getProperties();
-                for (const property of properties.values()) {
-                    const elementHandle = property.asElement();
-                    if (elementHandle)
-                        array.push(elementHandle);
-                }
-                await handle.dispose();
-                return array;
+            const array = [];
+            const properties = await handle.getProperties();
+            for (const property of properties.values()) {
+                const elementHandle = property.asElement();
+                if (elementHandle)
+                    array.push(elementHandle);
             }
+            await handle.dispose();
+            return array;
         } catch (e2) {
             console.error(`Exec: ${code}`)
             if (e2.message)

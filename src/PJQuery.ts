@@ -50,6 +50,10 @@ export interface PJQuery {
 
     last(): PJQuery;
 
+    /* M */
+    // https://api.jquery.com/map/
+    map(mapping: (index: number, element:any) => any): PJQuery;
+
     /* N */
 
     next(selector?: string): PJQuery;
@@ -92,4 +96,6 @@ export interface PJQuery {
     // no way to implement it in a Proxy class
     // (): Promise<WrapElementHandle<any>[]>;
     exec(): Promise<WrapElementHandle<any>[]>;
+    // get result as Javascript Plain Object
+    pojo(): Promise<any[]>;    
 }
