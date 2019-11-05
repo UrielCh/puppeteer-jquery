@@ -3,9 +3,16 @@
     "target": "ES2017",
     "module": "commonjs",
     "declaration": true,
-    "sourceMap": true,
     "strict": true,
     "moduleResolution": "node",
-    "esModuleInterop": true
-  }
+    "esModuleInterop": true,
+    "outDir": "lib",
+    "rootDirs": [
+      "src"
+    ]
+  },
+  "exclude": [
+    "node_modules",
+    "lib"
+  ]
 }
