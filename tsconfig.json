@@ -7,10 +7,11 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "outDir": "lib",
-    "rootDirs": [
-      "src"
-    ]
+    "rootDirs": [ "src" ]
   },
+  "include": [
+    "src"
+  ],
   "exclude": [
     "node_modules",
     "lib"
