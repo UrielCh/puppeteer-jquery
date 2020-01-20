@@ -31,7 +31,6 @@ export interface PJQuery {
     css(propertyName: string, value: string | number): this;
     css(propertyName: string, value: (index: number, value: string) => string | number): this;
 
-
     /* F */
 
     find(selector?: string): PJQuery;
@@ -81,12 +80,10 @@ export interface PJQuery {
 
     siblings(selector?: string): PJQuery;
 
-
     /* T */
 
     text(): Promise<string>;
     text(test: string): PJQuery;
-
 
     /* V */
 
