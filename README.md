@@ -39,6 +39,35 @@ let text = await page.jQuery('body button:last')
           .text();
 ```
 
+
+### Usage Mixed with puppeteer-extra
+
+```Typescript
+
+import { pageExtend, PageEx } from 'puppeteer-jquery'
+import bluebird from 'bluebird';
+import puppeteer from 'puppeteer-extra';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth'
+puppeteer.use(StealthPlugin())
+
+const page1 = 'https://recaptcha-demo.appspot.com/recaptcha-v3-request-scores.php';
+
+const main = async () => {
+    const browser = await puppeteer.launch({ headless: false });
+    const page = await browser.newPage();
+    const pageEx: PageEx = pageExtend(page);
+    await page.goto(page1, { waitUntil: 'domcontentloaded' }); // 'networkidle0'
+    await bluebird.delay(10_000);
+    await page.screenshot({ path: 'testresult.png', fullPage: true })
+    const result = await pageEx.jQuery('pre.response').text();
+    console.log(result);
+    console.log(JSON.parse(result));
+}
+
+main();
+
+```
+
 ### Notes
 
 You may also install @types/jquery dependence for more complex JQuery task, but in this case always use `jQuery` method, do not use `$` sortcut, the bundeled jQuery will be renamed before being injected. the injection process rename fullname `jQuery` to the rigth value before injections.
