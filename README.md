@@ -45,7 +45,6 @@ let text = await page.jQuery('body button:last')
 ```Typescript
 
 import { pageExtend, PageEx } from 'puppeteer-jquery'
-import bluebird from 'bluebird';
 import puppeteer from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth'
 puppeteer.use(StealthPlugin())
@@ -57,20 +56,27 @@ const main = async () => {
     const page = await browser.newPage();
     const pageEx: PageEx = pageExtend(page);
     await page.goto(page1, { waitUntil: 'domcontentloaded' }); // 'networkidle0'
-    await bluebird.delay(10_000);
+    await pageEx.waitForjQuery('pre.response:contains("score")');
     await page.screenshot({ path: 'testresult.png', fullPage: true })
     const result = await pageEx.jQuery('pre.response').text();
     console.log(result);
-    console.log(JSON.parse(result));
+    await page.waitFor(5000);
+    await page.close();
+    await browser.close();
 }
 
 main();
-
 ```
 
 ### Notes
 
 You may also install @types/jquery dependence for more complex JQuery task, but in this case always use `jQuery` method, do not use `$` sortcut, the bundeled jQuery will be renamed before being injected. the injection process rename fullname `jQuery` to the rigth value before injections.
+
+
+## changelog:
+
+* V1.6 update doc
+* V1.7 add waitForjQuery
 
 ## around this project
 

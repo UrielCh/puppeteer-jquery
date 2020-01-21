@@ -2,22 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { PJQuery } from "./PJQuery";
 import { Page, WrapElementHandle } from "puppeteer";
+import { PageEx } from './setup';
 
-/**
- * The new interface
- */
-export interface IJQueryAble {
-    jQuery(selector: string): PJQuery;
-}
-
-/**
- * the New code to inject in Page
- */
-export class JQueryAble implements IJQueryAble {
-    jQuery(this: Page, selector: string): PJQuery {
-        return new Proxy(new PProxyApi(this, selector, ''), handlerRoot) as any as PJQuery;
-    }
-}
 
 /**
  * random variable name generator
@@ -26,6 +12,39 @@ export const randName = () => {
     let c1 = Math.floor((Math.random() * 25));
     return 'abcdefghijklmnopqrstuvwxyz'[c1] + '_' + Number(String(Math.random()).substr(2)).toString(36);
 };
+
+/**
+ * choose a tmp name once per Launch
+ */
+const jQueryName = randName();
+
+/**
+ * jquery data storage
+ */
+let jQueryData: string = '';
+
+
+/**
+ * The new interface
+ */
+export interface IJQueryAble {
+    jQuery(selector: string): PJQuery;
+    waitForjQuery<R>(selector: string, options?: { timeout?: number, polling?: 'mutation' | 'raf' | number }): Promise<any | WrapElementHandle<R[]>>;
+}
+
+/**
+ * the New code to inject in Page
+ */
+export class JQueryAble implements IJQueryAble {
+    jQuery(this: PageEx, selector: string): PJQuery {
+        return new Proxy(new PProxyApi(this, selector, ''), handlerRoot) as any as PJQuery;
+    }
+
+    async waitForjQuery<R>(this: PageEx, selector: string, options?: { timeout?: number, polling?: 'mutation' | 'raf' | number }): Promise<any | WrapElementHandle<R[]>> {
+        await this.jQuery('dummy').exec();
+        return this.waitForFunction(`${jQueryName}('${selector.replace(/'/g, "\\\'")}').toArray().length > 0`, options, selector);
+    }
+}
 
 /**
  * internal used isString funtion
@@ -94,15 +113,6 @@ const handlerRoot = <ProxyHandler<PProxyApi>>{
         }
     }
 }
-/**
- * choose a tmp name once per Launch
- */
-const jQueryName = randName();
-
-/**
- * jquery data storage
- */
-let jQueryData: string = '';
 
 /**
  * transparant jquery interface
