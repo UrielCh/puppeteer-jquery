@@ -43,7 +43,6 @@ let text = await page.jQuery('body button:last')
 ### Usage Mixed with puppeteer-extra
 
 ```Typescript
-
 import { pageExtend, PageEx } from 'puppeteer-jquery'
 import puppeteer from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth'
@@ -56,15 +55,15 @@ const main = async () => {
     const page = await browser.newPage();
     const pageEx: PageEx = pageExtend(page);
     await page.goto(page1, { waitUntil: 'domcontentloaded' }); // 'networkidle0'
-    await pageEx.waitForjQuery('pre.response:contains("score")');
+    const r1 = await pageEx.waitForjQuery('pre.response:contains("score")');
+    console.log(await r1[0].boundingBox());
     await page.screenshot({ path: 'testresult.png', fullPage: true })
     const result = await pageEx.jQuery('pre.response').text();
-    console.log(result);
-    await page.waitFor(5000);
+    console.log('score is:' + JSON.parse(result).score);
+    await page.waitFor(500);
     await page.close();
     await browser.close();
 }
-
 main();
 ```
 
@@ -75,8 +74,9 @@ You may also install @types/jquery dependence for more complex JQuery task, but 
 
 ## changelog:
 
-* V1.6 update doc
+* V1.8 change waitForjQuery return type to ElementHandle[]
 * V1.7 add waitForjQuery
+* V1.6 update doc
 
 ## around this project
 

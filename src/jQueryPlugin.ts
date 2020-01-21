@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { PJQuery } from "./PJQuery";
-import { Page, WrapElementHandle } from "puppeteer";
+import { Page, WrapElementHandle, ElementHandle } from "puppeteer";
 import { PageEx } from './setup';
 
 
@@ -23,13 +23,12 @@ const jQueryName = randName();
  */
 let jQueryData: string = '';
 
-
 /**
  * The new interface
  */
 export interface IJQueryAble {
     jQuery(selector: string): PJQuery;
-    waitForjQuery<R>(selector: string, options?: { timeout?: number, polling?: 'mutation' | 'raf' | number }): Promise<any | WrapElementHandle<R[]>>;
+    waitForjQuery(selector: string, options?: { timeout?: number, polling?: 'mutation' | 'raf' | number }): Promise<ElementHandle[]>;
 }
 
 /**
@@ -40,9 +39,12 @@ export class JQueryAble implements IJQueryAble {
         return new Proxy(new PProxyApi(this, selector, ''), handlerRoot) as any as PJQuery;
     }
 
-    async waitForjQuery<R>(this: PageEx, selector: string, options?: { timeout?: number, polling?: 'mutation' | 'raf' | number }): Promise<any | WrapElementHandle<R[]>> {
-        await this.jQuery('dummy').exec();
-        return this.waitForFunction(`${jQueryName}('${selector.replace(/'/g, "\\\'")}').toArray().length > 0`, options, selector);
+    async waitForjQuery(this: PageEx, selector: string, options?: { timeout?: number, polling?: 'mutation' | 'raf' | number }): Promise<ElementHandle[]> {
+        const first = await this.jQuery(selector).exec();
+        if (first.length)
+            return first;
+        await this.waitForFunction(`${jQueryName}('${selector.replace(/'/g, "\\\'")}').toArray().length > 0`, options, selector);
+        return this.jQuery(selector).exec();
     }
 }
 
