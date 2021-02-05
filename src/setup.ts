@@ -1,4 +1,4 @@
-import { Page, launch, Browser, LaunchOptions } from "puppeteer";
+import { Page, launch, Browser, LaunchOptions } from "puppeteer-core";
 import { JQueryAble, IJQueryAble } from './jQueryPlugin';
 
 /**
