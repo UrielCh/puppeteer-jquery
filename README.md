@@ -21,24 +21,62 @@ The JQuery extra code won't be add to any of your page until you use it.
 
 Handle `Page` instance as `PageEx`, and get access to `page.jQuery(selector: string)`
 
-```Typescript
-let browser = await launch({headless: true});
-let pageOrg = await browser.newPage();
-let page = pageExtand(pageOrg);
-// append a <H1>
-await page.jQuery('body').append(`<h1>Title</h1>`);
-// get the H1 value
-let title = await page.jQuery('h1').text();
-// chain calls
-let text = await page.jQuery('body button:last')
-          .closest('div')
-          .find('h3')
-          .css('color', 'yellow')
-          .parent()
-          .find(':last')
-          .text();
+```bash
+npm install puppeteer
+npm install puppeteer-jquery
 ```
 
+
+```Typescript
+import puppeteer from 'puppeteer';
+import { pageExtend } from 'puppeteer-jquery'
+
+(async() =>{
+    let browser = await puppeteer.launch({headless: true});
+    let pageOrg = await browser.newPage();
+    let page = pageExtend(pageOrg);
+    // append a <H1>
+    await page.jQuery('body').append(`<h1>Title</h1>`);
+    // get the H1 value
+    let title = await page.jQuery('h1').text();
+    // chain calls
+    let text = await page.jQuery('body button:last')
+              .closest('div')
+              .find('h3')
+              .css('color', 'yellow')
+              .parent()
+              .find(':last')
+              .text();
+})();
+```
+
+### Advanced common usage
+
+```bash
+npm install puppeteer
+npm install puppeteer-jquery
+npm --save-dev install @types/jquery
+```
+
+```Typescript
+import puppeteer from 'puppeteer';
+import { pageExtend } from 'puppeteer-jquery'
+// imprort global jQuery
+var jQuery: JQueryStatic;
+
+(async() =>{
+    let browser = await puppeteer.launch({headless: true});
+    let pageOrg = await browser.newPage();
+    await page.goto('http://maywebsite.abc', {
+        waitUntil: 'networkidle2',
+    });
+    
+    let page = pageExtend(pageOrg);
+    
+    // get all li text in the page as an array
+    const data: string[] = await jqPage.jQuery('li').map((id, elm) => jQuery(elm).text()).pojo();
+})();
+```
 
 ### Usage Mixed with puppeteer-extra
 
@@ -67,12 +105,13 @@ const main = async () => {
 main();
 ```
 
+
 ### Notes
 
 You may also install @types/jquery dependence for more complex JQuery task, but in this case always use `jQuery` method, do not use `$` sortcut, the bundeled jQuery will be renamed before being injected. the injection process rename fullname `jQuery` to the rigth value before injections.
 
 
-## changelog:
+## changelog
 
 * V2.0 project backmto live, puppeter is now writen in typescript, add some jquery method (attr(string), css(string), prop(string))
 * V1.8 change waitForjQuery return type to ElementHandle[]
