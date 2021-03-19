@@ -100,12 +100,23 @@ const handlerRoot = <ProxyHandler<PProxyApi>>{
                 return JSON.stringify(arg)
             });
             let newCode = `${target.code}.${key}(${args.join(',')})`;
+            // zero arg funtion that return serialisable value
             if (args.length === 0) {
                 switch (key) {
                     case 'text':
                     case 'html':
                     case 'val':
                     case 'css':
+                        const tmp = new PProxyApi(target.page, target.selector, newCode)
+                        return tmp.exec(false, true);
+                }
+            }
+            // one arg funtion that return serialisable value
+            if (args.length === 1) {
+                switch (key) {
+                    case 'attr':
+                    case 'css':
+                    case 'prop':
                         const tmp = new PProxyApi(target.page, target.selector, newCode)
                         return tmp.exec(false, true);
                 }

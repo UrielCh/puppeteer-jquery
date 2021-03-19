@@ -74,6 +74,7 @@ You may also install @types/jquery dependence for more complex JQuery task, but 
 
 ## changelog:
 
+* V2.0 project backmto live, puppeter is now writen in typescript, add some jquery method (attr(string), css(string), prop(string))
 * V1.8 change waitForjQuery return type to ElementHandle[]
 * V1.7 add waitForjQuery
 * V1.6 update doc
