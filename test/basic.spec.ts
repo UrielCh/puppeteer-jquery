@@ -38,7 +38,7 @@ describe('Basic Dom', () => {
         expect(title).equal(expectedTitle);
     }).timeout(2000);
 
-    it('update h1 text', async () => {
+    it('update h1 text with .exec()', async () => {
         let expectedTitle = 'Hello New';
         //.text("tmo") 
         await page.jQuery('h1').text(expectedTitle).exec();
@@ -46,39 +46,71 @@ describe('Basic Dom', () => {
         expect(title).equal(expectedTitle);
     }).timeout(2000);
 
-    it('append h2', async () => {
-        await page.jQuery('body').append(`<h2>Head 1</h2>`).exec();
-        let h2Texts = await page.jQuery('h2').text();
-        expect(h2Texts).equal('Head 1');
+    it('update h1 text without .exec()', async () => {
+        let expectedTitle = 'Hello New2';
+        //.text("tmo") 
+        await page.jQuery('h1').text(expectedTitle);
+        let title = await page.jQuery('h1').text();
+        expect(title).equal(expectedTitle);
     }).timeout(2000);
 
-    it('append h2 with arrow function', async () => {
+    let currentText: string[] = []
+    it('append h2 with .exec()', async () => {
+        const newText = 'Head 1';
+        await page.jQuery('body').append(`<h2>${newText}</h2>`).exec();
+        currentText.push(newText);
+        let h2Texts = await page.jQuery('h2').text();
+        expect(h2Texts).equal(currentText.join(''));
+    }).timeout(2000);
+
+    it('append h2 without .exec()', async () => {
+        const newText = 'Head 1X';
+        await page.jQuery('body').append(`<h2>${newText}</h2>`);
+        currentText.push(newText);
+        let h2Texts = await page.jQuery('h2').text();
+        expect(h2Texts).equal(currentText.join(''));
+    }).timeout(2000);
+
+    it('append h2 with arrow function with .exec()', async () => {
+        const newText = 'Head 2';
         await page.jQuery('body').append(() => `<h2>Head 2</h2>`).exec();
+        currentText.push(newText);
         let h2Texts = await page.jQuery('h2').text();
-        expect(h2Texts).equal('Head 1Head 2');
+        expect(h2Texts).equal(currentText.join(''));
     }).timeout(2000);
 
-    it('append h2 with full function', async () => {
-        await page.jQuery('body').append((index: number, html: string) => { return `<h2>Head 3</h2>` }).exec();
+    it('append h2 with arrow function without .exec()', async () => {
+        const newText = 'Head 2';
+        await page.jQuery('body').append(() => `<h2>Head 2</h2>`);
+        currentText.push(newText);
         let h2Texts = await page.jQuery('h2').text();
-        expect(h2Texts).equal('Head 1Head 2Head 3');
+        expect(h2Texts).equal(currentText.join(''));
     }).timeout(2000);
 
-    it('append h2 with full function using args', async () => {
+    it('append h2 with full function with .exec()', async () => {
+        const newText = 'Head 5';
+        await page.jQuery('body').append((index: number, html: string) => { return `<h2>Head 5</h2>` }).exec();
+        currentText.push(newText);
+        let h2Texts = await page.jQuery('h2').text();
+        expect(h2Texts).equal(currentText.join(''));
+    }).timeout(2000);
+
+    it('append h2 with full function using args with .exec()', async () => {
+        const newText = 'index 0';
         await page.jQuery('body').append((index: number, html: string) => { return `<h2>index ${index}</h2>` }).exec();
+        currentText.push(newText);
         let h2Texts = await page.jQuery('h2').text();
-        expect(h2Texts).equal('Head 1Head 2Head 3index 0');
+        expect(h2Texts).equal(currentText.join(''));
     }).timeout(2000);
 
     it('map fnc to POJO Basic', async () => {
         const ids = await page.jQuery('h2').map((id, elm) => id).pojo();
-        const expected = [0, 1, 2, 3];
+        const expected = currentText.map((v, n) => n);
         expect(ids).eql(expected);
     }).timeout(2000);
 
     it('map fnc to POJO Advanced', async () => {
         const ids = await page.jQuery('h2').map((id, elm) => jQuery(elm).text()).pojo();
-        const expected = ['Head 1', 'Head 2', 'Head 3', 'index 0'];
-        expect(ids).eql(expected);
+        expect(ids).eql(currentText);
     }).timeout(2000);
 });

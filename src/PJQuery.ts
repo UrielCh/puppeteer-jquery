@@ -1,5 +1,7 @@
 import { WrapElementHandle } from "puppeteer";
 
+type PJQueryHybrid = PJQuery & Promise<PJQuery>
+
 /**
  * Puppeter JQuery interface
  * TODO map and test most of https://api.jquery.com/
@@ -7,14 +9,14 @@ import { WrapElementHandle } from "puppeteer";
 export interface PJQuery {
     /* A */
 
-    add(selector?: string): PJQuery;
-    add(html?: string): PJQuery;
+    add(selector?: string): PJQueryHybrid;
+    add(html?: string): PJQueryHybrid;
     // add( selector, context )
     // addBack(selector?: string): PJQuery;
-    addClass(className: string): PJQuery;
-    addClass(fnc: (index: number, currentClassName: string) => String): PJQuery;
-    append(content?: string): PJQuery;
-    append(content: (index: number, html: string) => string): PJQuery;
+    addClass(className: string): PJQueryHybrid;
+    addClass(fnc: (index: number, currentClassName: string) => String): PJQueryHybrid;
+    append(content?: string): PJQueryHybrid;
+    append(content: (index: number, html: string) => string): PJQueryHybrid;
     // Traversing > Miscellaneous Traversing
     addBack(selector?: string): PJQuery;
     addClass(className: String): this;
@@ -23,8 +25,8 @@ export interface PJQuery {
 
     /* C */
 
-    children(selector?: string): PJQuery;
-    closest(selector?: string): PJQuery;
+    children(selector?: string): PJQueryHybrid;
+    closest(selector?: string): PJQueryHybrid;
     css(propertyName: string): Promise<string>;
     css(propertyNames: string[]): Promise<string[]>;
     css(properties: { [keys: string]: string | number }): this;
@@ -33,13 +35,13 @@ export interface PJQuery {
 
     /* F */
 
-    find(selector?: string): PJQuery;
-    first(): PJQuery;
+    find(selector?: string): PJQueryHybrid;
+    first(): PJQueryHybrid;
 
     /* H */
 
     html(): Promise<string>;
-    html(test: string): PJQuery;
+    html(test: string): PJQueryHybrid;
 
     /* I */
 
@@ -47,26 +49,26 @@ export interface PJQuery {
 
     /* L */
 
-    last(): PJQuery;
+    last(): PJQueryHybrid;
 
     /* M */
     // https://api.jquery.com/map/
-    map(mapping: (index: number, element:any) => any): PJQuery;
+    map(mapping: (index: number, element:any) => any): PJQueryHybrid;
 
     /* N */
 
-    next(selector?: string): PJQuery;
-    nextAll(selector?: string): PJQuery;
-    nextUntil(selector?: string): PJQuery;
+    next(selector?: string): PJQueryHybrid;
+    nextAll(selector?: string): PJQueryHybrid;
+    nextUntil(selector?: string): PJQueryHybrid;
 
     /* P */
 
-    parent(selector?: string): PJQuery;
-    parents(selector?: string): PJQuery;
-    parentsUntil(selector?: string): PJQuery;
-    prev(selector?: string): PJQuery;
-    prevAll(selector?: string): PJQuery;
-    prevUntil(selector?: string, filter?: string): PJQuery;
+    parent(selector?: string): PJQueryHybrid;
+    parents(selector?: string): PJQueryHybrid;
+    parentsUntil(selector?: string): PJQueryHybrid;
+    prev(selector?: string): PJQueryHybrid;
+    prevAll(selector?: string): PJQueryHybrid;
+    prevUntil(selector?: string, filter?: string): PJQueryHybrid;
     prop(attributeName: string): Promise<string>;
     prop(attributeName: string, value: string): this;
 
@@ -78,17 +80,17 @@ export interface PJQuery {
 
     /* S */
 
-    siblings(selector?: string): PJQuery;
+    siblings(selector?: string): PJQueryHybrid;
 
     /* T */
 
     text(): Promise<string>;
-    text(test: string): PJQuery;
+    text(test: string): PJQueryHybrid;
 
     /* V */
 
     val(): Promise<string>;
-    val(test: string): PJQuery;
+    val(test: string): PJQueryHybrid;
 
     // no way to implement it in a Proxy class
     // (): Promise<WrapElementHandle<any>[]>;
