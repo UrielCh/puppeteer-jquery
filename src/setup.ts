@@ -12,7 +12,7 @@ export interface BrowserEx<T extends Page> extends Browser {
 /**
  * Helper interface to handle Page with JQuery
  */
-export type PageEx = Page & IJQueryAble;
+export type PageEx<T = IJQueryAble> = Page & T;
 
 /**
  * Add sources methods to dest prototype.
@@ -38,7 +38,7 @@ function applyMixins(dest: any, sources: any[]) {
  * @param page 
  * @returns 
  */
- export function pageExtend<T extends Page>(page: T): T & JQueryAble {
+ export function pageExtend<T extends Page = Page>(page: T): T & JQueryAble {
     applyMixins(page, [ JQueryAble ]);
     return page as T & JQueryAble;
 }
