@@ -1,12 +1,12 @@
 import { WrapElementHandle } from "puppeteer";
 
-type PJQueryHybrid = PJQuery & Promise<PJQuery>
+type PJQueryHybrid<TElement = HTMLElement> = PJQuery<TElement> & Promise<PJQuery<TElement>>
 
 /**
  * Puppeter JQuery interface
  * TODO map and test most of https://api.jquery.com/
  */
-export interface PJQuery {
+export interface PJQuery<TElement = HTMLElement> {
     /* A */
 
     add(selector?: string): PJQueryHybrid;
@@ -45,21 +45,26 @@ export interface PJQuery {
 
     /* I */
 
-    is(className: String): Promise<boolean>;
-
+    is(selector_function_selection_elements: String | ((this: TElement, index: number, element: TElement) => boolean)): Promise<boolean>;
+    
     /* L */
 
     last(): PJQueryHybrid;
 
     /* M */
     // https://api.jquery.com/map/
-    map(mapping: (index: number, element:any) => any): PJQueryHybrid;
+    map(callback: (this: TElement, index: number, element: TElement) => any): PJQueryHybrid;
 
     /* N */
 
     next(selector?: string): PJQueryHybrid;
     nextAll(selector?: string): PJQueryHybrid;
     nextUntil(selector?: string): PJQueryHybrid;
+    not(selector_function_selection: string | ((this: TElement, index: number, element: TElement) => boolean)): PJQueryHybrid;
+
+    /* O */
+
+    offsetParent(): PJQueryHybrid;
 
     /* P */
 
