@@ -1,17 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 import { PJQuery } from "./PJQuery";
-import { Page, WrapElementHandle, ElementHandle } from "puppeteer";
+import { Page, ElementHandle } from "playwright";
 import { PageEx } from './setup';
-
-
-/**
- * random variable name generator
- */
-export const randName = () => {
-    let c1 = Math.floor((Math.random() * 25));
-    return 'abcdefghijklmnopqrstuvwxyz'[c1] + '_' + Number(String(Math.random()).substr(2)).toString(36);
-};
+import { randName } from './common';
 
 /**
  * choose a tmp name once per Launch
@@ -43,7 +35,7 @@ export class JQueryAble implements IJQueryAble {
         const first = await this.jQuery(selector).exec();
         if (first.length)
             return first;
-        await this.waitForFunction(`${jQueryName}('${selector.replace(/'/g, "\\\'")}').toArray().length > 0`, options, selector);
+        await this.waitForFunction(`${jQueryName}('${selector.replace(/'/g, "\\\'")}').toArray().length > 0`, options);
         return this.jQuery(selector).exec();
     }
 }
@@ -139,7 +131,7 @@ class PProxyApi {
      * @param toArray must be set to true is the object is a jQuery
      * @param isPOJO must be set to true if waiting for plain data, fals is waiting for HTMLElements
      */
-    async exec<R>(toArray: boolean, isPOJO: boolean): Promise<any | WrapElementHandle<R[]>> {
+    async exec<R>(toArray: boolean, isPOJO: boolean): Promise<any> { //  | WrapElementHandle<R[]>
         let code = `${jQueryName}('${this.selector.replace(/'/g, "\\\'")}')`;
         code += this.code;
         if (toArray)

@@ -1,11 +1,14 @@
+import 'mocha';
 import { expect } from 'chai';
 import { setupJQuery, BrowserEx, PageEx } from '../src';
 import fs from 'fs';
 import path from 'path';
+import jq from 'jquery'
+var jQuery: typeof jq;
+// var jQuery: JQueryStatic;
 
 let browser: BrowserEx;// <PageEx>;
 let page: PageEx;//<IJQueryAble>;
-var jQuery: JQueryStatic;
 
 before(async () => {
     browser = await setupJQuery({

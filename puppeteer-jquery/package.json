@@ -28,6 +28,7 @@
     "@types/chai": "^4.2.15",
     "@types/jquery": "^3.5.5",
     "@types/mocha": "^8.2.1",
+    "@types/node": "^14.14.37",
     "chai": "^4.3.4",
     "mocha": "^8.3.2",
     "puppeteer": "^8.0.0",
@@ -38,5 +39,6 @@
   "files": [
     "lib",
     "data/*.js"
-  ]
+  ],
+  "dependencies": {}
 }

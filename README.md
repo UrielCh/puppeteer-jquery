@@ -26,7 +26,6 @@ npm install puppeteer
 npm install puppeteer-jquery
 ```
 
-
 ```Typescript
 import puppeteer from 'puppeteer';
 import { pageExtend } from 'puppeteer-jquery'
@@ -95,8 +94,13 @@ npm --save-dev install @types/jquery
 ```Typescript
 import puppeteer from 'puppeteer';
 import { pageExtend } from 'puppeteer-jquery'
-// import global jQuery
-var jQuery: JQueryStatic;
+
+// import global jQuery modern way
+import jq from 'jquery'
+var jQuery: typeof jq;
+
+// import global jQuery legacy version
+// var jQuery: JQueryStatic;
 
 (async() =>{
     let browser = await puppeteer.launch({headless: true});
