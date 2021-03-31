@@ -1,19 +1,25 @@
-import { Page, launch, Browser, LaunchOptions, BrowserConnectOptions, BrowserLaunchArgumentOptions } from "puppeteer";
+import { Page, launch, Browser } from "puppeteer";
 import { JQueryAble, IJQueryAble } from './jQueryPlugin';
 
 /**
  * Helper interface to handle Page with JQuery
  */
-export interface BrowserEx extends Browser {
-    newPage(): Promise<PageEx>;
-    pages(): Promise<PageEx[]>;
+export interface BrowserEx<T extends Page> extends Browser {
+    newPage(): Promise<T>;
+    pages(): Promise<T[]>;
 }
 
 /**
  * Helper interface to handle Page with JQuery
  */
-export interface PageEx extends Page, IJQueryAble { }
+export type PageEx = Page & IJQueryAble;
 
+/**
+ * Add sources methods to dest prototype.
+ * Only add method if they do not exists in the destination
+ * @param dest Object with prototype to extand
+ * @param sources Mixin classes, to merge to the dest prototype
+ */
 function applyMixins(dest: any, sources: any[]) {
     const destProto = dest.prototype || dest.__proto__;
     for (const baseCtor of sources) {
@@ -27,16 +33,26 @@ function applyMixins(dest: any, sources: any[]) {
     };
 }
 
-export const pageExtend = (page: Page): PageEx => {
-    applyMixins(page, [JQueryAble]);
-    return page as PageEx;
+/**
+ * add JQueryAble Mixin to a Page
+ * @param page 
+ * @returns 
+ */
+ export function pageExtend<T extends Page>(page: T): T & JQueryAble {
+    applyMixins(page, [ JQueryAble ]);
+    return page as T & JQueryAble;
 }
 
-export async function setupJQuery(options?: LaunchOptions & BrowserLaunchArgumentOptions & BrowserConnectOptions): Promise<BrowserEx> {
+/**
+ * launch a puppeter with preloaded jQuery
+ * @param options LaunchOptions & BrowserLaunchArgumentOptions & BrowserConnectOptions
+ * @returns 
+ */
+export async function setupJQuery(options?: Parameters<typeof launch>[0]): Promise<BrowserEx<PageEx>> {
     if (!options)
         options = { headless: true };
     let browser = await launch(options);
     let page = await browser.newPage();
     pageExtend(page);
-    return browser as BrowserEx;
+    return browser as BrowserEx<PageEx>;
 }
