@@ -23,7 +23,7 @@ after(async () => {
 });
 
 describe('Data scraping', () => {
-    it('get all title texts', async function () {
+    it('Get all title texts', async function () {
         // await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
         let expectedTitles = ['a mug', 'a hat'];
         const data: string[] = await page
@@ -34,7 +34,7 @@ describe('Data scraping', () => {
 
     }).timeout(2000);
 
-    it('scrape complex datas', async function () {
+    it('Scrape complex datas', async function () {
         let expectedData = [
             {
                 "title": "a mug",
