@@ -171,7 +171,7 @@ You may also install `@types/jquery` dependence for more complex JQuery task, in
 
 ## changelog
 
-* V2.1 Add a advance example in doc, improve map signature, add not(), offsetParent(), update is(), add scrapping test.
+* V3.0 first verion ported from puppeteer-jquery 0.3.0
 * V2.0 project backmto live, puppeter is now writen in typescript, add some jquery method (attr(string), css(string), prop(string))
 * V1.8 change waitForjQuery return type to ElementHandle[]
 * V1.7 add waitForjQuery
