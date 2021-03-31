@@ -55,6 +55,35 @@ import { pageExtend } from 'puppeteer-jquery'
 ```bash
 npm install puppeteer
 npm install puppeteer-jquery
+```
+
+```Typescript
+import puppeteer from 'puppeteer';
+import { pageExtend } from 'puppeteer-jquery'
+
+(async() =>{
+    let browser = await puppeteer.launch({headless: true});
+    let pageOrg = await browser.newPage();
+    await page.goto('http://maywebsite.abc', {
+        waitUntil: 'networkidle2',
+    });
+    
+    let page = pageExtend(pageOrg);
+    
+    // get all li text in the page as an array
+    const data: string[] = await jqPage
+        .jQuery('li')
+        .map((id: number, elm: HTMLElement) => elm.textContent)
+        .pojo();
+    // data is an array of string
+})();
+```
+
+### Still more advanced common usage
+
+```bash
+npm install puppeteer
+npm install puppeteer-jquery
 npm --save-dev install @types/jquery
 ```
 
@@ -74,7 +103,26 @@ var jQuery: JQueryStatic;
     let page = pageExtend(pageOrg);
     
     // get all li text in the page as an array
-    const data: string[] = await jqPage.jQuery('li').map((id, elm) => jQuery(elm).text()).pojo();
+    const data: string[] = await jqPage.jQuery('div.card')
+        .map((id: number, elm: HTMLElement) => {
+            const title = jQuery(elm).find('.title').text();
+            const price = Number(jQuery(elm).find('.price').text());
+            const style = jQuery(elm).find('.data').attr('class');
+            return {title, price, style};
+        }).pojo();
+    // data contains somethink like:
+    // [
+    //     {
+    //         "title": 'a mug',
+    //         "price": 15,
+    //         "style": "data promo-red"
+    //     },
+    //     {
+    //         "title": 'a hat',
+    //         "price": 36,
+    //         "style": "data"
+    //     },
+    // ]
 })();
 ```
 
@@ -105,14 +153,14 @@ const main = async () => {
 main();
 ```
 
-
 ### Notes
 
-You may also install @types/jquery dependence for more complex JQuery task, but in this case always use `jQuery` method, do not use `$` sortcut, the bundeled jQuery will be renamed before being injected. the injection process rename fullname `jQuery` to the rigth value before injections.
+You may also install `@types/jquery` dependence for more complex JQuery task, in this case always use `jQuery` method, do not use `$` sortcut, the bundeled jQuery will be renamed before being injected. the injection process rename fullname `jQuery` to the rigth value before injections.
 
 
 ## changelog
 
+* V2.1 update doc, add a advance example
 * V2.0 project backmto live, puppeter is now writen in typescript, add some jquery method (attr(string), css(string), prop(string))
 * V1.8 change waitForjQuery return type to ElementHandle[]
 * V1.7 add waitForjQuery
