@@ -75,9 +75,14 @@ import { pageExtend } from 'puppeteer-jquery'
         .jQuery('li')
         .map((id: number, elm: HTMLElement) => elm.textContent)
         .pojo();
-    // data is an array of string
 })();
 ```
+`data` contains somethink like:
+
+```javascript
+ [ "a mug", "a hat"]
+```
+
 
 ### Still more advanced common usage
 
@@ -115,7 +120,7 @@ var jQuery: JQueryStatic;
 
 `data` contains somethink like:
 
-```json
+```javascript
 [
     {
         "title": "a mug",
