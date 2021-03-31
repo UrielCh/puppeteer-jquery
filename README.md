@@ -90,7 +90,7 @@ npm --save-dev install @types/jquery
 ```Typescript
 import puppeteer from 'puppeteer';
 import { pageExtend } from 'puppeteer-jquery'
-// imprort global jQuery
+// import global jQuery
 var jQuery: JQueryStatic;
 
 (async() =>{
@@ -110,20 +110,24 @@ var jQuery: JQueryStatic;
             const style = jQuery(elm).find('.data').attr('class');
             return {title, price, style};
         }).pojo();
-    // data contains somethink like:
-    // [
-    //     {
-    //         "title": 'a mug',
-    //         "price": 15,
-    //         "style": "data promo-red"
-    //     },
-    //     {
-    //         "title": 'a hat',
-    //         "price": 36,
-    //         "style": "data"
-    //     },
-    // ]
 })();
+```
+
+`data` contains somethink like:
+
+```json
+[
+    {
+        "title": "a mug",
+        "price": 15,
+        "style": "data promo-red"
+    },
+    {
+        "title": "a hat",
+        "price": 36,
+        "style": "data"
+    },
+]
 ```
 
 ### Usage Mixed with puppeteer-extra
@@ -160,7 +164,7 @@ You may also install `@types/jquery` dependence for more complex JQuery task, in
 
 ## changelog
 
-* V2.1 Add a advance example in doc, improve map signature, add not(), offsetParent(), update is()
+* V2.1 Add a advance example in doc, improve map signature, add not(), offsetParent(), update is(), add scrapping test.
 * V2.0 project backmto live, puppeter is now writen in typescript, add some jquery method (attr(string), css(string), prop(string))
 * V1.8 change waitForjQuery return type to ElementHandle[]
 * V1.7 add waitForjQuery
