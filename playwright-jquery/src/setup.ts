@@ -33,8 +33,11 @@ export type PageEx<T = IJQueryAble> = Page & T;
 export async function setupJQuery(options?: Parameters<typeof webkit.launch>[0]): Promise<BrowserEx<PageEx>> {
     if (!options)
         options = { headless: true };
+    //else
+    //    options.headless = true;
     let browser: Browser = await webkit.launch(options);
     let page: Page = await browser.newPage();
     pageExtend(page);
+    await page.close();
     return browser as BrowserEx<PageEx>;
 }

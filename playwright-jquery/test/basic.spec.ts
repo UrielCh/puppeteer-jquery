@@ -10,7 +10,7 @@ let page: PageEx;
 
 before(async () => {
     browser = await setupJQuery({
-        headless: true,
+        headless: false,
         args: [],
     });
     page = await browser.newPage();

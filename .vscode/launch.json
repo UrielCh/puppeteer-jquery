@@ -7,20 +7,41 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Mocha All",
-            "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+            "name": "puppeteer-jquery Mocha",
+            "cwd": "${workspaceFolder}/puppeteer-jquery",
+            "program": "${workspaceFolder}/puppeteer-jquery/node_modules/mocha/bin/_mocha",
             "args": [
                 "-r",
                 "ts-node/register",
                 "--timeout",
                 "999999",
                 "--colors",
-                "${workspaceFolder}/test/*.spec.ts",
+                "${workspaceFolder}/puppeteer-jquery/test/*.spec.ts",
             ],
             "protocol": "inspector",
             "skipFiles": [
                 "<node_internals>/**/*.js"
             ]
         },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "playwright-jquery Mocha",
+            "cwd": "${workspaceFolder}/playwright-jquery",
+            "program": "${workspaceFolder}/playwright-jquery/node_modules/mocha/bin/_mocha",
+            "args": [
+                "-r",
+                "ts-node/register",
+                "--timeout",
+                "999999",
+                "--colors",
+                "${workspaceFolder}/playwright-jquery/test/*.spec.ts",
+            ],
+            "protocol": "inspector",
+            "skipFiles": [
+                "<node_internals>/**/*.js"
+            ]
+        },
+
     ]
 }
