@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { setupJQuery, BrowserEx, PageEx } from '../src';
 
-let browser: BrowserEx;
+let browser: BrowserEx;// <PageEx>;
 let page: PageEx;
 var jQuery: JQueryStatic;
 

@@ -3,8 +3,8 @@ import { setupJQuery, BrowserEx, PageEx } from '../src';
 import fs from 'fs';
 import path from 'path';
 
-let browser: BrowserEx;
-let page: PageEx;
+let browser: BrowserEx;// <PageEx>;
+let page: PageEx;//<IJQueryAble>;
 var jQuery: JQueryStatic;
 
 before(async () => {
