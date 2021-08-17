@@ -33,6 +33,10 @@ export interface PJQuery<TElement = HTMLElement> {
     css(propertyName: string, value: string | number): this;
     css(propertyName: string, value: (index: number, value: string) => string | number): this;
 
+    /* E */
+
+    eq(index: number): PJQueryHybrid;
+
     /* F */
 
     find(selector?: string): PJQueryHybrid;
