@@ -1,11 +1,11 @@
 import 'mocha';
 import { expect } from 'chai';
 import { setupJQuery, BrowserEx, PageEx } from '../src';
+
 import jq from 'jquery'
 var jQuery: typeof jq;
-// var jQuery: JQueryStatic;
 
-let browser: BrowserEx;// <PageEx>;
+let browser: BrowserEx;
 let page: PageEx;
 
 before(async () => {
