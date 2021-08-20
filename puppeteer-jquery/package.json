@@ -1,6 +1,6 @@
 {
   "name": "puppeteer-jquery",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Fluent jquery integration for puppeteer in Typescript",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -31,7 +31,7 @@
     "@types/node": "^16.6.2",
     "chai": "^4.3.4",
     "mocha": "^9.1.0",
-    "puppeteer": "^8.0.0",
+    "puppeteer": "^10.2.0",
     "rimraf": "^3.0.2",
     "ts-node": "^10.2.1",
     "typescript": "^4.3.5"
