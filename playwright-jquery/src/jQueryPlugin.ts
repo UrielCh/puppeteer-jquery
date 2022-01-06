@@ -151,8 +151,8 @@ class PProxyApi {
                     // TODO add minify code.
                 }
                 // if (~e.message.indexOf(`${jQueryName} is not defined`)) { // puppeter
-                if (~e.message.indexOf(`ReferenceError: Can't find variable: ${jQueryName}`)) { // page.evaluateHandle: Evaluation failed: ReferenceError: Can't find variable: ${jQueryName}
-                        await page.evaluate(jQueryData); // define jQuery
+                if (e instanceof Error && ~e.message.indexOf(`ReferenceError: Can't find variable: ${jQueryName}`)) { // page.evaluateHandle: Evaluation failed: ReferenceError: Can't find variable: ${jQueryName}
+                    await page.evaluate(jQueryData); // define jQuery
                     handle = await page.evaluateHandle(code);
                 } else {
                     throw e;
@@ -172,10 +172,10 @@ class PProxyApi {
             }
             await handle.dispose();
             return array;
-        } catch (e2) {
-            console.error(`Exec: ${code}`)
-            if (e2.message)
+        } catch (e2: unknown) {
+            if (e2 instanceof Error) {
                 e2.message = `exec: ${code}\n failed:${e2.message}`;
+            }
             throw e2;
         }
     }

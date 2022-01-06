@@ -150,7 +150,7 @@ class PProxyApi {
                     jQueryData = '//# sourceURL=jquery.js\n' + jqData.replace('window.jQuery = window.$ = jQuery', `window.${jQueryName} = jQuery`);
                     // TODO add minify code.
                 }
-                if (~e.message.indexOf(`${jQueryName} is not defined`)) {
+                if (e instanceof Error && ~e.message.indexOf(`${jQueryName} is not defined`)) {
                     await page.evaluate(jQueryData); // define jQuery
                     handle = await page.evaluateHandle(code);
                 } else {
@@ -171,10 +171,10 @@ class PProxyApi {
             }
             await handle.dispose();
             return array;
-        } catch (e2) {
-            console.error(`Exec: ${code}`)
-            if (e2.message)
+        } catch (e2: unknown) {
+            if (e2 instanceof Error) {
                 e2.message = `exec: ${code}\n failed:${e2.message}`;
+            }
             throw e2;
         }
     }
