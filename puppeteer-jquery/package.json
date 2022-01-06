@@ -18,7 +18,7 @@
     "jquery",
     "puppeteer"
   ],
-  "author": "uriel Chemouni <uchemouni@gmail.com>",
+  "author": "Uriel Chemouni <uchemouni@gmail.com> (https://urielch.github.io/)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/UrielCh/puppeteer-jquery/issues"
