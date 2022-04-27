@@ -150,8 +150,10 @@ class PProxyApi {
                     jQueryData = '//# sourceURL=jquery.js\n' + jqData.replace('window.jQuery = window.$ = jQuery', `window.${jQueryName} = jQuery`);
                     // TODO add minify code.
                 }
-                // if (~e.message.indexOf(`${jQueryName} is not defined`)) { // puppeter
-                if (e instanceof Error && ~e.message.indexOf(`ReferenceError: Can't find variable: ${jQueryName}`)) { // page.evaluateHandle: Evaluation failed: ReferenceError: Can't find variable: ${jQueryName}
+                
+                if (e instanceof Error && ~e.message.indexOf(jQueryName)) { 
+                    // page.evaluateHandle: Evaluation failed: ReferenceError: Can't find variable: ${jQueryName}
+                    // page.evaluateHandle: ReferenceError: ${jQueryName} is not defined
                     await page.evaluate(jQueryData); // define jQuery
                     handle = await page.evaluateHandle(code);
                 } else {
