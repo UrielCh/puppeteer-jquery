@@ -17,13 +17,14 @@ so there are two ways to setup this jquery:
 * Calling `function setupJQuery(): Promise<BrowserEx>` once that will create and enable jQuery in an headless browser.
 The JQuery extra code won't be add to any of your page until you use it.
 
-### Usage
+### Usage [typescript]
 
 Handle `Page` instance as `PageEx`, and get access to `page.jQuery(selector: string)`
 
 ```bash
 npm install puppeteer
 npm install puppeteer-jquery
+npm install --save-dev typescript @types/node ts-node
 ```
 
 ```Typescript
@@ -49,11 +50,45 @@ import { pageExtend } from 'puppeteer-jquery'
 })();
 ```
 
-### Advanced common usage
+
+### Usage [javascript]
+
+Handle `Page` instance as `PageEx`, and get access to `page.jQuery(selector: string)`
 
 ```bash
 npm install puppeteer
 npm install puppeteer-jquery
+```
+
+```Typescript
+const puppeteer = require('puppeteer');
+const { pageExtend }  = require('puppeteer-jquery');
+
+(async() =>{
+    let browser = await puppeteer.launch({headless: true});
+    let pageOrg = await browser.newPage();
+    let page = pageExtend(pageOrg);
+    // append a <H1>
+    await page.jQuery('body').append(`<h1>Title</h1>`);
+    // get the H1 value
+    let title = await page.jQuery('h1').text();
+    // chain calls
+    let text = await page.jQuery('body button:last')
+              .closest('div')
+              .find('h3')
+              .css('color', 'yellow')
+              .parent()
+              .find(':last')
+              .text();
+})();
+```
+
+### Advanced common usage [typescript]
+
+```bash
+npm install puppeteer
+npm install puppeteer-jquery
+npm install --save-dev typescript @types/node ts-node
 ```
 
 ```Typescript
@@ -83,24 +118,17 @@ import { pageExtend } from 'puppeteer-jquery'
 ```
 
 
-### Still more advanced common usage
+
+### Advanced common usage [javascript]
 
 ```bash
 npm install puppeteer
 npm install puppeteer-jquery
-npm --save-dev install @types/jquery
 ```
 
-```Typescript
-import puppeteer from 'puppeteer';
-import { pageExtend } from 'puppeteer-jquery'
-
-// import global jQuery modern way
-import jq from 'jquery'
-var jQuery: typeof jq;
-
-// import global jQuery legacy version
-// var jQuery: JQueryStatic;
+```javascript
+const puppeteer = require('puppeteer');
+const { pageExtend }  = require('puppeteer-jquery');
 
 (async() =>{
     let browser = await puppeteer.launch({headless: true});
@@ -112,31 +140,133 @@ var jQuery: typeof jq;
     let page = pageExtend(pageOrg);
     
     // get all li text in the page as an array
-    const data: string[] = await jqPage.jQuery('div.card')
-        .map((id: number, elm: HTMLElement) => {
-            const title = jQuery(elm).find('.title').text();
-            const price = Number(jQuery(elm).find('.price').text());
-            const style = jQuery(elm).find('.data').attr('class');
-            return {title, price, style};
-        }).pojo();
+    const data = await jqPage
+        .jQuery('li')
+        .map((id, elm) => elm.textContent)
+        .pojo();
 })();
 ```
-
 `data` contains somethink like:
 
 ```javascript
-[
-    {
-        "title": "a mug",
-        "price": 15,
-        "style": "data promo-red"
-    },
-    {
-        "title": "a hat",
-        "price": 36,
-        "style": "data"
-    },
-]
+ [ "a mug", "a hat"]
+```
+
+### Still more advanced common usage [Typescript]
+
+```bash
+npm install -g pnpm
+pnpm install -g typescript @types/node ts-node
+
+pnpm init
+pnpm install puppeteer puppeteer-jquery picocolors
+pnpm --save-dev install @types/jquery
+```
+
+Fill tsconfig.json:
+```json
+{
+  "compilerOptions": {
+    "target": "es2016",
+    "lib": [ "dom" ],
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "strict": true,
+  }
+}
+```
+
+Fill your the code in index.ts
+```Typescript
+import puppeteer from 'puppeteer';
+import { pageExtend } from 'puppeteer-jquery';
+import pc from 'picocolors';
+import type jq from 'jquery'
+var jQuery: typeof jq;
+(async() =>{
+    let browser = await puppeteer.launch({headless: false});
+    let pageOrg = await browser.newPage();
+    await pageOrg.goto('https://github.com/UrielCh/puppeteer-jquery', { waitUntil: 'networkidle2' });
+    let jqPage = pageExtend(pageOrg);
+    const stars: string = await jqPage.jQuery('#repo-stars-counter-star').text();
+    console.log(`my project is only ${pc.yellow(stars)}⭐`);
+    const files = await jqPage.jQuery('div[aria-labelledby="files"] > div[role="row"].Box-row')
+        .map((id: number, elm: HTMLElement) => {
+             const div = jQuery(elm);
+             const icon = (div.find('[role="gridcell"] [aria-label]:first').attr('aria-label') || '').trim();
+             const filename = (div.find('div[role="rowheader"]').text() || '').trim();
+             const lastChange = (div.find('[role="gridcell"]:last').text() || '').trim();
+             return {icon, filename, lastChange};
+        }).pojo<{icon: string, filename: string, lastChange: string}>();
+    for (const file of files) {
+        console.log(`file ${pc.green(file.filename)} is ${file.icon} had been change ${file.lastChange} `);
+    }
+    browser.close()
+})();
+
+```
+
+`ts-node index.ts`
+my project is only 3219⭐
+file .vscode is Directory had been change 13 months ago
+file playwright-jquery is Directory had been change 4 months ago
+file puppeteer-jquery is Directory had been change 4 months ago
+file .gitignore is File had been change 3 years ago
+file LICENSE is File had been change 3 years ago
+file README.md is File had been change 13 months ago
+```
+
+
+### Still more advanced common usage [javascript]
+
+```bash
+npm install -g pnpm
+
+pnpm init
+pnpm install puppeteer puppeteer-jquery picocolors
+pnpm --save-dev install @types/jquery
+```
+
+Fill your the code in index.mjs
+```javascript
+const puppeteer = require('puppeteer');
+const { pageExtend }  = require('puppeteer-jquery');
+const pc = require('picocolors');
+
+var jQuery;
+(async() =>{
+
+    let browser = await puppeteer.launch({headless: false});
+    let pageOrg = await browser.newPage();
+    await pageOrg.goto('https://github.com/UrielCh/puppeteer-jquery', { waitUntil: 'networkidle2' });
+    let jqPage = pageExtend(pageOrg);
+    /** @type {string} */
+    const stars = await jqPage.jQuery('#repo-stars-counter-star').text();
+    console.log(`my project is only ${pc.yellow(stars)}⭐`);
+    const files = await jqPage.jQuery('div[aria-labelledby="files"] > div[role="row"].Box-row')
+        .map((id, elm) => {
+             const div = jQuery(elm);
+             const icon = (div.find('[role="gridcell"] [aria-label]:first').attr('aria-label') || '').trim();
+             const filename = (div.find('div[role="rowheader"]').text() || '').trim();
+             const lastChange = (div.find('[role="gridcell"]:last').text() || '').trim();
+             return {icon, filename, lastChange};
+        }).pojo();
+    for (const file of files) {
+        console.log(`file ${pc.green(file.filename)} is ${file.icon} had been change ${file.lastChange} `);
+    }
+    browser.close()
+})();
+
+```
+
+`ts-node index.ts`
+my project is only 3220⭐
+file .vscode is Directory had been change 13 months ago
+file playwright-jquery is Directory had been change 4 months ago
+file puppeteer-jquery is Directory had been change 4 months ago
+file .gitignore is File had been change 3 years ago
+file LICENSE is File had been change 3 years ago
+file README.md is File had been change 13 months ago
 ```
 
 ### Usage Mixed with puppeteer-extra

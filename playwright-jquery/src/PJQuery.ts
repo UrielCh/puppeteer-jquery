@@ -105,5 +105,5 @@ export interface PJQuery<TElement = HTMLElement> {
     // exec(): Promise<WrapElementHandle<any>[]>; 
     exec(): Promise<any>; 
     // get result as Javascript Plain Object
-    pojo(): Promise<any[]>;    
+    pojo<T = any>(): Promise<T[]>;    
 }

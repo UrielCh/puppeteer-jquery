@@ -50,7 +50,7 @@ export interface PJQuery<TElement = HTMLElement> {
     /* I */
 
     is(selector_function_selection_elements: String | ((this: TElement, index: number, element: TElement) => boolean)): Promise<boolean>;
-    
+
     /* L */
 
     last(): PJQueryHybrid;
@@ -105,5 +105,5 @@ export interface PJQuery<TElement = HTMLElement> {
     // (): Promise<WrapElementHandle<any>[]>;
     exec(): Promise<WrapElementHandle<any>[]>;
     // get result as Javascript Plain Object
-    pojo(): Promise<any[]>;    
+    pojo<T = any>(): Promise<T[]>;
 }
