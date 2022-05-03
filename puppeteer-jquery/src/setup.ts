@@ -1,4 +1,4 @@
-import { Page, launch, Browser } from "puppeteer";
+import puppeteer, { Page, Browser } from "puppeteer";
 import { JQueryAble, IJQueryAble } from './jQueryPlugin';
 import { applyMixins } from "./common";
 
@@ -30,10 +30,10 @@ export type PageEx<T = IJQueryAble> = Page & T;
  * @param options LaunchOptions & BrowserLaunchArgumentOptions & BrowserConnectOptions
  * @returns 
  */
-export async function setupJQuery(options?: Parameters<typeof launch>[0]): Promise<BrowserEx<PageEx>> {
+export async function setupJQuery(options?: Parameters<typeof puppeteer.launch>[0]): Promise<BrowserEx<PageEx>> {
     if (!options)
         options = { headless: true };
-    let browser: Browser = await launch(options);
+    let browser: Browser = await puppeteer.launch(options);
     let page: Page = await browser.newPage();
     pageExtend(page);
     return browser as BrowserEx<PageEx>;
