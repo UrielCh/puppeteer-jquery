@@ -306,6 +306,7 @@ You may also install `@types/jquery` dependence for more complex JQuery task, in
 ## changelog
 
 * V3.3 improve typing
+* V3.0 Add a advance example in doc, improve map signature, add not(), offsetParent(), update is(), add scrapping test, unify code to work with playwright
 * V2.1 Add a advance example in doc, improve map signature, add not(), offsetParent(), update is(), add scrapping test.
 * V2.0 project backmto live, puppeter is now writen in typescript, add some jquery method (attr(string), css(string), prop(string))
 * V1.8 change waitForjQuery return type to ElementHandle[]
@@ -316,3 +317,4 @@ You may also install `@types/jquery` dependence for more complex JQuery task, in
 
 * [melbourne2991/jquery-puppeteer](https://github.com/melbourne2991/jquery-puppeteer) Simple JQuery integration, by adding a `page.evalJquery()`.
 * [berstend/puppeteer-extra](https://github.com/berstend/puppeteer-extra) A plugin proposal standard for puppeteer (not used by the way).
+* [playwright-jquery](https://www.npmjs.com/package/playwright-jquery) The playwright version.
