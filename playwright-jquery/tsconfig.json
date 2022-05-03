@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2017",
+    "lib": [ "dom" ],
+    "types": [ "node", "jquery" ],
     "module": "commonjs",
     "declaration": true,
     "strict": true,

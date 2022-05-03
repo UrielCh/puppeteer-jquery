@@ -29,10 +29,10 @@ describe('Data scraping', () => {
     it('Get all title texts', async function () {
         // await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
         let expectedTitles = ['a mug', 'a hat'];
-        const data: string[] = await page
+        const data = await page
             .jQuery('.title')
             .map((id: number, elm: HTMLElement) => elm.textContent)
-            .pojo();
+            .pojo<string>();
         expect(data).deep.equal(expectedTitles, 'Get all title texts');
 
     }).timeout(2000);
@@ -50,13 +50,13 @@ describe('Data scraping', () => {
                 "style": "data"
             },
         ];
-        const data: string[] = await page.jQuery('div.card')
+        const data = await page.jQuery('div.card')
             .map((id: number, elm: HTMLElement) => {
                 const title = jQuery(elm).find('.title').text();
                 const price = Number(jQuery(elm).find('.price').text());
                 const style = jQuery(elm).find('.data').attr('class');
                 return { title, price, style };
-            }).pojo();
+            }).pojo<string>();
         expect(data).deep.equal(expectedData, 'Get datas');
 
     }).timeout(2000);

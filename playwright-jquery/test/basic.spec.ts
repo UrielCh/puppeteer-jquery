@@ -107,13 +107,13 @@ describe('Basic Dom', () => {
     }).timeout(2000);
 
     it('Map fnc to POJO Basic', async () => {
-        const ids = await page.jQuery('h2').map((id, elm) => id).pojo();
+        const ids = await page.jQuery('h2').map((id, elm) => id).pojo<number>();
         const expected = currentText.map((v, n) => n);
         expect(ids).eql(expected);
     }).timeout(2000);
 
     it('Map fnc to POJO Advanced', async () => {
-        const ids = await page.jQuery('h2').map((id, elm) => jQuery(elm).text()).pojo();
+        const ids = await page.jQuery('h2').map((id, elm) => jQuery(elm).text()).pojo<string>();
         expect(ids).eql(currentText);
     }).timeout(2000);
 });
