@@ -1,4 +1,4 @@
-import { setupJQuery, BrowserEx, PageEx } from '..';
+import { setupJQuery, BrowserEx, PageEx } from 'playwright-jquery';
 import pc from 'picocolors';
 
 async function run() { 

@@ -15,73 +15,66 @@ so there are two ways to setup this jquery:
 * Calling `function setupJQuery(): Promise<BrowserEx>` once that will create and enable jQuery in an headless browser.
 The JQuery extra code won't be add to any of your page until you use it.
 
-### Usage
-
-Handle `Page` instance as `PageEx`, and get access to `page.jQuery(selector: string)`
+### Usage [typescript]
 
 ```bash
-npm install puppeteer
-npm install puppeteer-jquery
+npm init -y
+npm install playwright playwright-jquery
+npm --save-dev install @types/jquery @types/node typescript
 ```
 
 ```Typescript
-import puppeteer from 'puppeteer';
-import { pageExtend } from 'puppeteer-jquery'
+import { setupJQuery } from 'playwright-jquery';
 
-(async() =>{
-    let browser = await puppeteer.launch({headless: true});
-    let pageOrg = await browser.newPage();
-    let page = pageExtend(pageOrg);
-    // append a <H1>
-    await page.jQuery('body').append(`<h1>Title</h1>`);
+(async () => {
+    let browser = await setupJQuery({ headless: false });
+    let page = await browser.newPage();
+    await page.jQuery('body').append(`<h1>Title</h1> <div><h3>sub-title <i>X</i><h3> <h4>h4</h4></div>`);
     // get the H1 value
     let title = await page.jQuery('h1').text();
     // chain calls
-    let text = await page.jQuery('body button:last')
-              .closest('div')
-              .find('h3')
-              .css('color', 'yellow')
-              .parent()
-              .find(':last')
-              .text();
+    let text = await page.jQuery('body i:last')
+        .closest('div')
+        .find('h3')
+        .css('color', 'yellow')
+        .parent()
+        .find(':last')
+        .text();
+    console.log('this page contains H1:', title);
+    console.log('last h4 contains', text);
 })();
 ```
 
-### Advanced common usage
+### Usage [javascript]
 
 ```bash
-npm install playwright
-npm install playwright-jquery
+npm init -y
+npm install playwright playwright-jquery
 ```
-
-```Typescript
-import playwright from 'playwright';
-import { pageExtend } from 'playwright-jquery'
-
-(async() =>{
-    let browser = await playwright.launch({headless: true});
-    let pageOrg = await browser.newPage();
-    await page.goto('http://maywebsite.abc', {
-        waitUntil: 'networkidle2',
-    });
-    
-    let page = pageExtend(pageOrg);
-    
-    // get all li text in the page as an array
-    const data: string[] = await jqPage
-        .jQuery('li')
-        .map((id: number, elm: HTMLElement) => elm.textContent)
-        .pojo();
-})();
-```
-`data` contains somethink like:
 
 ```javascript
- [ "a mug", "a hat"]
+const { setupJQuery } = require('playwright-jquery');
+
+(async () => {
+    let browser = await setupJQuery({ headless: false });
+    let page = await browser.newPage();
+    await page.jQuery('body').append(`<h1>Title</h1> <div><h3>sub-title <i>X</i><h3> <h4>h4</h4></div>`);
+    // get the H1 value
+    let title = await page.jQuery('h1').text();
+    // chain calls
+    let text = await page.jQuery('body i:last')
+        .closest('div')
+        .find('h3')
+        .css('color', 'yellow')
+        .parent()
+        .find(':last')
+        .text();
+    console.log('this page contains H1:', title);
+    console.log('last h4 contains', text);
+})();
 ```
 
-
-### Still more advanced common usage [typescript]
+### Advanced common usage [typescript]
 
 ```bash
 npm install -g typescript @types/node ts-node
@@ -148,9 +141,7 @@ file LICENSE is File had been change 3 years ago
 file README.md is File had been change 13 months ago
 ```
 
-
-
-### Still more advanced common usage [javascript]
+### Advanced common usage [javascript]
 
 ```bash
 npm init -y
@@ -233,6 +224,7 @@ You may also install `@types/jquery` dependence for more complex JQuery task, in
 
 ## changelog
 
+* V3.3 update doc add sample fix issue 11
 * V3.0 first verion ported from puppeteer-jquery 0.3.0
 * V2.0 project backmto live, puppeter is now writen in typescript, add some jquery method (attr(string), css(string), prop(string))
 * V1.8 change waitForjQuery return type to ElementHandle[]
