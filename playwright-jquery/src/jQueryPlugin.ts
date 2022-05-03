@@ -11,6 +11,11 @@ import { randName } from './common';
 const jQueryName = randName();
 
 /**
+ * Error message that can be throw if jQuery is not loaded
+ */
+const nonRefErrors = [`ReferenceError: Can't find variable: ${jQueryName}`, `${jQueryName} is not defined`];
+
+/**
  * jquery data storage
  */
 let jQueryData: string = '';
@@ -150,10 +155,14 @@ class PProxyApi {
                     jQueryData = '//# sourceURL=jquery.js\n' + jqData.replace('window.jQuery = window.$ = jQuery', `window.${jQueryName} = jQuery`);
                     // TODO add minify code.
                 }
-                // if (~e.message.indexOf(`${jQueryName} is not defined`)) { // puppeter
-                if (e instanceof Error && ~e.message.indexOf(`ReferenceError: Can't find variable: ${jQueryName}`)) { // page.evaluateHandle: Evaluation failed: ReferenceError: Can't find variable: ${jQueryName}
-                    await page.evaluate(jQueryData); // define jQuery
-                    handle = await page.evaluateHandle(code);
+                if (e instanceof Error) {
+                    const { message } = e;
+                    if (~message.indexOf(nonRefErrors[0]) || ~message.indexOf(nonRefErrors[1])) {
+                        await page.evaluate(jQueryData); // define jQuery
+                        handle = await page.evaluateHandle(code); // and retry
+                    } else {
+                        throw e;
+                    }
                 } else {
                     throw e;
                 }
