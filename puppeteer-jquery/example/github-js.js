@@ -7,7 +7,7 @@ async function run() {
         args: [],
     });
     const jqPage = await browser.newPage();
-    await jqPage.goto('https://github.com/UrielCh/puppeteer-jquery', { waitUntil: 'networkidle' });
+    await jqPage.goto('https://github.com/UrielCh/puppeteer-jquery', { waitUntil: 'networkidle2' });
     
     const stars = await jqPage.jQuery('#repo-stars-counter-star').text();
     console.log(`my project is only ${pc.yellow(stars)}⭐`);

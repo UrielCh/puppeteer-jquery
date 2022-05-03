@@ -1,0 +1,13 @@
+lockfileVersion: 5.3
+
+specifiers:
+  picocolors: ^1.0.0
+
+dependencies:
+  picocolors: 1.0.0
+
+packages:
+
+  /picocolors/1.0.0:
+    resolution: {integrity: sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ==}
+    dev: false

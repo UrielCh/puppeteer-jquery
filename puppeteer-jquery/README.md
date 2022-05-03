@@ -167,8 +167,9 @@ Fill tsconfig.json:
 ```json
 {
   "compilerOptions": {
-    "target": "es2016",
-    "lib": [ "dom" ],
+    "target": "es2017",
+    "lib": [ "DOM", "ES2017" ],
+    "types": [ "node", "jquery" ],
     "module": "commonjs",
     "esModuleInterop": true,
     "strict": true,
