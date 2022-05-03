@@ -117,8 +117,6 @@ import { pageExtend } from 'puppeteer-jquery'
  [ "a mug", "a hat"]
 ```
 
-
-
 ### Advanced common usage [javascript]
 
 ```bash
@@ -155,12 +153,11 @@ const { pageExtend }  = require('puppeteer-jquery');
 ### Still more advanced common usage [Typescript]
 
 ```bash
-npm install -g pnpm
-pnpm install -g typescript @types/node ts-node
+npm install -g typescript @types/node ts-node
 
-pnpm init
-pnpm install puppeteer puppeteer-jquery picocolors
-pnpm --save-dev install @types/jquery
+npm init -y
+npm install puppeteer puppeteer-jquery picocolors
+npm --save-dev install @types/jquery
 ```
 
 Fill tsconfig.json:
@@ -208,6 +205,7 @@ var jQuery: typeof jq;
 ```
 
 `ts-node index.ts`
+```
 my project is only 3219⭐
 file .vscode is Directory had been change 13 months ago
 file playwright-jquery is Directory had been change 4 months ago
@@ -217,18 +215,15 @@ file LICENSE is File had been change 3 years ago
 file README.md is File had been change 13 months ago
 ```
 
-
 ### Still more advanced common usage [javascript]
 
 ```bash
-npm install -g pnpm
-
-pnpm init
-pnpm install puppeteer puppeteer-jquery picocolors
-pnpm --save-dev install @types/jquery
+npm init -y
+npm install puppeteer puppeteer-jquery picocolors
+npm --save-dev install @types/jquery
 ```
 
-Fill your the code in index.mjs
+Fill your the code in index.js
 ```javascript
 const puppeteer = require('puppeteer');
 const { pageExtend }  = require('puppeteer-jquery');

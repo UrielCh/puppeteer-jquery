@@ -81,60 +81,122 @@ import { pageExtend } from 'playwright-jquery'
 ```
 
 
-### Still more advanced common usage
+### Still more advanced common usage [typescript]
 
 ```bash
-npm install playwright
-npm install playwright-jquery
+npm install -g typescript @types/node ts-node
+
+npm init -y
+npm install playwright playwright-jquery picocolors
 npm --save-dev install @types/jquery
 ```
 
-```Typescript
-import playwright from 'playwright';
-import { pageExtend } from 'puppeteer-jquery'
-
-// import global jQuery modern way
-import jq from 'jquery'
-var jQuery: typeof jq;
-
-// import global jQuery legacy version
-// var jQuery: JQueryStatic;
-
-(async() =>{
-    let browser = await playwright.launch({headless: true});
-    let pageOrg = await browser.newPage();
-    await page.goto('http://maywebsite.abc', {
-        waitUntil: 'networkidle2',
-    });
-    
-    let page = pageExtend(pageOrg);
-    
-    // get all li text in the page as an array
-    const data: string[] = await jqPage.jQuery('div.card')
-        .map((id: number, elm: HTMLElement) => {
-            const title = jQuery(elm).find('.title').text();
-            const price = Number(jQuery(elm).find('.price').text());
-            const style = jQuery(elm).find('.data').attr('class');
-            return {title, price, style};
-        }).pojo();
-})();
+Fill tsconfig.json:
+```json
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "lib": [ "DOM", "es2017" ],
+    "types": [ "node", "jquery" ],
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "strict": true,
+  }
+}
 ```
 
-`data` contains somethink like:
+Fill your the code in index.ts
+```Typescript
+import { setupJQuery, BrowserEx, PageEx } from '..';
+import pc from 'picocolors';
 
+async function run() { 
+    const browser: BrowserEx = await setupJQuery({
+        headless: true,
+        args: [],
+    });
+    const jqPage: PageEx = await browser.newPage();
+    await jqPage.goto('https://github.com/UrielCh/puppeteer-jquery', { waitUntil: 'networkidle' });
+
+    const stars: string = await jqPage.jQuery('#repo-stars-counter-star').text();
+    console.log(`my project is only ${pc.yellow(stars)}⭐`);
+    const files = await jqPage.jQuery('div[aria-labelledby="files"] > div[role="row"].Box-row')
+        .map((id: number, elm: HTMLElement) => {
+             const div = jQuery(elm);
+             const icon = (div.find('[role="gridcell"] [aria-label]:first').attr('aria-label') || '').trim();
+             const filename = (div.find('div[role="rowheader"]').text() || '').trim();
+             const lastChange = (div.find('[role="gridcell"]:last').text() || '').trim();
+             return {icon, filename, lastChange};
+        }).pojo<{icon: string, filename: string, lastChange: string}>();
+    for (const file of files) {
+        console.log(`file ${pc.green(file.filename)} is ${file.icon} had been change ${file.lastChange} `);
+    }
+    browser.close()
+}
+run();
+```
+
+
+`ts-node index.ts`
+```
+my project is only 3219⭐
+file .vscode is Directory had been change 13 months ago
+file playwright-jquery is Directory had been change 4 months ago
+file puppeteer-jquery is Directory had been change 4 months ago
+file .gitignore is File had been change 3 years ago
+file LICENSE is File had been change 3 years ago
+file README.md is File had been change 13 months ago
+```
+
+
+
+### Still more advanced common usage [javascript]
+
+```bash
+npm init -y
+npm install playwright playwright-jquery picocolors
+npm --save-dev install @types/jquery
+```
+
+Fill your the code in index.js
 ```javascript
-[
-    {
-        "title": "a mug",
-        "price": 15,
-        "style": "data promo-red"
-    },
-    {
-        "title": "a hat",
-        "price": 36,
-        "style": "data"
-    },
-]
+const { setupJQuery } = require('..');
+const pc = require('picocolors');
+
+async function run() { 
+    const browser = await setupJQuery({
+        headless: true,
+        args: [],
+    });
+    const jqPage = await browser.newPage();
+    await jqPage.goto('https://github.com/UrielCh/puppeteer-jquery', { waitUntil: 'networkidle' });
+    
+    const stars = await jqPage.jQuery('#repo-stars-counter-star').text();
+    console.log(`my project is only ${pc.yellow(stars)}⭐`);
+    const files = await jqPage.jQuery('div[aria-labelledby="files"] > div[role="row"].Box-row')
+        .map((id, elm) => {
+             const div = jQuery(elm);
+             const icon = (div.find('[role="gridcell"] [aria-label]:first').attr('aria-label') || '').trim();
+             const filename = (div.find('div[role="rowheader"]').text() || '').trim();
+             const lastChange = (div.find('[role="gridcell"]:last').text() || '').trim();
+             return {icon, filename, lastChange};
+        }).pojo();
+    for (const file of files) {
+        console.log(`file ${pc.green(file.filename)} is ${file.icon} had been change ${file.lastChange} `);
+    }
+    browser.close()
+}
+run();```
+
+
+`node index.js`
+my project is only 3220⭐
+file .vscode is Directory had been change 13 months ago
+file playwright-jquery is Directory had been change 4 months ago
+file puppeteer-jquery is Directory had been change 4 months ago
+file .gitignore is File had been change 3 years ago
+file LICENSE is File had been change 3 years ago
+file README.md is File had been change 13 months ago
 ```
 
 ### Usage Mixed with playwright-extra
