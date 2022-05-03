@@ -305,7 +305,7 @@ You may also install `@types/jquery` dependence for more complex JQuery task, in
 
 ## changelog
 
-* V3.3 improve typing
+* V3.3 improve typing + update all deps
 * V3.0 Add a advance example in doc, improve map signature, add not(), offsetParent(), update is(), add scrapping test, unify code to work with playwright
 * V2.1 Add a advance example in doc, improve map signature, add not(), offsetParent(), update is(), add scrapping test.
 * V2.0 project backmto live, puppeter is now writen in typescript, add some jquery method (attr(string), css(string), prop(string))
