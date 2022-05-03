@@ -258,8 +258,10 @@ var jQuery;
 })();
 
 ```
-
 `ts-node index.ts`
+
+output:
+```
 my project is only 3220⭐
 file .vscode is Directory had been change 13 months ago
 file playwright-jquery is Directory had been change 4 months ago
@@ -303,6 +305,7 @@ You may also install `@types/jquery` dependence for more complex JQuery task, in
 
 ## changelog
 
+* V3.3 improve typing
 * V2.1 Add a advance example in doc, improve map signature, add not(), offsetParent(), update is(), add scrapping test.
 * V2.0 project backmto live, puppeter is now writen in typescript, add some jquery method (attr(string), css(string), prop(string))
 * V1.8 change waitForjQuery return type to ElementHandle[]
