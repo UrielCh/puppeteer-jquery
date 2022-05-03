@@ -29,24 +29,25 @@ npm install --save-dev typescript @types/node ts-node
 
 ```Typescript
 import puppeteer from 'puppeteer';
-import { pageExtend } from 'puppeteer-jquery'
+import { pageExtend } from 'puppeteer-jquery';
 
-(async() =>{
+(async () => {
     let browser = await puppeteer.launch({headless: true});
     let pageOrg = await browser.newPage();
     let page = pageExtend(pageOrg);
-    // append a <H1>
-    await page.jQuery('body').append(`<h1>Title</h1>`);
+    await page.jQuery('body').append(`<h1>Title</h1> <div><h3>sub-title <i>X</i><h3> <h4>h4</h4></div>`);
     // get the H1 value
     let title = await page.jQuery('h1').text();
     // chain calls
-    let text = await page.jQuery('body button:last')
-              .closest('div')
-              .find('h3')
-              .css('color', 'yellow')
-              .parent()
-              .find(':last')
-              .text();
+    let text = await page.jQuery('body i:last')
+        .closest('div')
+        .find('h3')
+        .css('color', 'yellow')
+        .parent()
+        .find(':last')
+        .text();
+    console.log('this page contains H1:', title);
+    console.log('last h4 contains', text);
 })();
 ```
 
@@ -61,25 +62,26 @@ npm install puppeteer-jquery
 ```
 
 ```Typescript
-const puppeteer = require('puppeteer');
-const { pageExtend }  = require('puppeteer-jquery');
+const puppeteer = require ('puppeteer');
+const { pageExtend } = require('puppeteer-jquery');
 
-(async() =>{
+(async () => {
     let browser = await puppeteer.launch({headless: true});
     let pageOrg = await browser.newPage();
     let page = pageExtend(pageOrg);
-    // append a <H1>
-    await page.jQuery('body').append(`<h1>Title</h1>`);
+    await page.jQuery('body').append(`<h1>Title</h1> <div><h3>sub-title <i>X</i><h3> <h4>h4</h4></div>`);
     // get the H1 value
     let title = await page.jQuery('h1').text();
     // chain calls
-    let text = await page.jQuery('body button:last')
-              .closest('div')
-              .find('h3')
-              .css('color', 'yellow')
-              .parent()
-              .find(':last')
-              .text();
+    let text = await page.jQuery('body i:last')
+        .closest('div')
+        .find('h3')
+        .css('color', 'yellow')
+        .parent()
+        .find(':last')
+        .text();
+    console.log('this page contains H1:', title);
+    console.log('last h4 contains', text);
 })();
 ```
 
@@ -120,39 +122,6 @@ import { pageExtend } from 'puppeteer-jquery'
 ### Advanced common usage [javascript]
 
 ```bash
-npm install puppeteer
-npm install puppeteer-jquery
-```
-
-```javascript
-const puppeteer = require('puppeteer');
-const { pageExtend }  = require('puppeteer-jquery');
-
-(async() =>{
-    let browser = await puppeteer.launch({headless: true});
-    let pageOrg = await browser.newPage();
-    await page.goto('http://maywebsite.abc', {
-        waitUntil: 'networkidle2',
-    });
-    
-    let page = pageExtend(pageOrg);
-    
-    // get all li text in the page as an array
-    const data = await jqPage
-        .jQuery('li')
-        .map((id, elm) => elm.textContent)
-        .pojo();
-})();
-```
-`data` contains somethink like:
-
-```javascript
- [ "a mug", "a hat"]
-```
-
-### Still more advanced common usage [Typescript]
-
-```bash
 npm install -g typescript @types/node ts-node
 
 npm init -y
@@ -165,7 +134,7 @@ Fill tsconfig.json:
 {
   "compilerOptions": {
     "target": "es2017",
-    "lib": [ "DOM", "es2017" ],
+    "lib": [ "DOM", "ES2017" ],
     "types": [ "node", "jquery" ],
     "module": "commonjs",
     "esModuleInterop": true,
@@ -215,7 +184,7 @@ file LICENSE is File had been change 3 years ago
 file README.md is File had been change 13 months ago
 ```
 
-### Still more advanced common usage [javascript]
+### Advanced common usage [javascript]
 
 ```bash
 npm init -y
@@ -269,6 +238,12 @@ file README.md is File had been change 13 months ago
 
 ### Usage Mixed with puppeteer-extra
 
+```bash
+npm init -y
+npm install puppeteer-extra puppeteer-extra-plugin-stealth puppeteer
+
+```
+
 ```Typescript
 import { pageExtend, PageEx } from 'puppeteer-jquery'
 import puppeteer from 'puppeteer-extra';
@@ -282,16 +257,24 @@ const main = async () => {
     const page = await browser.newPage();
     const pageEx: PageEx = pageExtend(page);
     await page.goto(page1, { waitUntil: 'domcontentloaded' }); // 'networkidle0'
+    const go = await pageEx.waitForjQuery('button.go');
+    if (!go.length) {
+        console.error('go button not found');
+        return;
+    }
+    await pageEx.jQuery('button.go').map((index, element) => { jQuery(element).trigger('click'); })
+    await page.$eval('button.go', (el: Element) => (el as HTMLElement).click()); 
     const r1 = await pageEx.waitForjQuery('pre.response:contains("score")');
     console.log(await r1[0].boundingBox());
     await page.screenshot({ path: 'testresult.png', fullPage: true })
     const result = await pageEx.jQuery('pre.response').text();
     console.log('score is:' + JSON.parse(result).score);
-    await page.waitFor(500);
+    await page.waitForTimeout(500);
     await page.close();
     await browser.close();
 }
 main();
+
 ```
 
 ### Notes
@@ -301,7 +284,7 @@ You may also install `@types/jquery` dependence for more complex JQuery task, in
 
 ## changelog
 
-* V3.3 improve typing
+* V3.3 improve typing + update all deps
 * V3.0 Add a advance example in doc, improve map signature, add not(), offsetParent(), update is(), add scrapping test, unify code to work with playwright
 * V2.1 Add a advance example in doc, improve map signature, add not(), offsetParent(), update is(), add scrapping test.
 * V2.0 project backmto live, puppeter is now writen in typescript, add some jquery method (attr(string), css(string), prop(string))
