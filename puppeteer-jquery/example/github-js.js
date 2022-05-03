@@ -1,4 +1,4 @@
-const { setupJQuery } = require('..');
+const { setupJQuery } = require('puppeteer-jquery');
 const pc = require('picocolors');
 
 async function run() { 

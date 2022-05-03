@@ -1,4 +1,4 @@
-import { setupJQuery, BrowserEx, PageEx } from '..';
+import { setupJQuery, BrowserEx, PageEx } from 'puppeteer-jquery';
 import pc from 'picocolors';
 
 async function run() { 

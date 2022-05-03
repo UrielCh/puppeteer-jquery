@@ -2,9 +2,11 @@ lockfileVersion: 5.3
 
 specifiers:
   picocolors: ^1.0.0
+  puppeteer-jquery: link:..
 
 dependencies:
   picocolors: 1.0.0
+  puppeteer-jquery: link:..
 
 packages:
 
