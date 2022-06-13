@@ -1,5 +1,9 @@
 # Puppeteer-JQuery
 
+This project is now renamed as [puppeteer-extra-plugin-jquery](https://www.npmjs.com/package/puppeteer-extra-plugin-jquery)
+
+-----------
+
 I have started my automation browser scripts in 2006, far before *Chrome Devtools Protocol* was available, even before Chrome.
 I had maintained this private project for more than a decade, and during this period this automation plateforme evolved quickly get based on JQuery selector to identify elements.
 Now I'm trying to merge my stuff with the open source automation mainstream.
