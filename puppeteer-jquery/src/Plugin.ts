@@ -21,7 +21,7 @@ class Plugin extends PuppeteerExtraPlugin {
   constructor(opts?: Partial<PluginOptions>) {
     super(opts)
   }
-  // usable as puppeteer-extra-plugin-jquery-jquery/Plugin
+  // usable as 'puppeteer-extra-plugin-jquery/lib/Plugin
   get name(): 'jquery/lib/Plugin' {
     return 'jquery/lib/Plugin'
   }
