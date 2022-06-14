@@ -18,7 +18,7 @@ yarn add puppeteer puppeteer-extra puppeteer-extra-plugin-jquery
 npm install puppeteer puppeteer-extra puppeteer-extra-plugin-jquery
 ```
 
-## Usage
+## Usage Javascript
 
 ```js
 // puppeteer-extra is a drop-in replacement for puppeteer,
@@ -44,8 +44,8 @@ puppeteer.launch({ headless: true }).then(async browser => {
 }
 
 ```
-<details>
- <summary><strong>TypeScript usage</strong></summary><br/>
+
+## Usage TypeScript
 
 > `puppeteer-extra-plugin-jquery` is intend to be use in TS to unleash its full potential
 > Typing is available for most jQuery syntax.
@@ -71,6 +71,10 @@ puppeteer
 ```
 
 This plugin fullname is `puppeteer-extra-plugin-jquery/lib/Plugin`
+
+
+<details>
+ <summary><strong>Old doc without puppeteer-extra</strong></summary><br/>
 
 ## Old doc
 
