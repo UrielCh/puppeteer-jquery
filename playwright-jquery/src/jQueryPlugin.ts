@@ -8,7 +8,7 @@ import { randName } from './common';
 /**
  * choose a tmp name once per Launch
  */
-const jQueryName = randName();
+export const jQueryName = randName();
 
 /**
  * Error message that can be throw if jQuery is not loaded

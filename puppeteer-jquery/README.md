@@ -342,7 +342,7 @@ main();
 You may also install `@types/jquery` dependence for more complex JQuery task, in this case always use `jQuery` method, do not use `$` sortcut, the bundeled jQuery will be renamed before being injected. the injection process rename fullname `jQuery` to the rigth value before injections.
 
 ## changelog
-
+* V0.3.7 add getJQueryName(), jQuery.filter(), add onTimeout options
 * V0.3.6 update docs
 * V0.3.5 project renamed to puppeteer-extra-plugin-jquery and can be use with [berstend/puppeteer-extra](https://github.com/berstend/puppeteer-extra)
 * V0.3.3 improve typing + update all deps

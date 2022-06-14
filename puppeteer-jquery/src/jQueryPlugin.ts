@@ -8,7 +8,7 @@ import { randName } from './common';
 /**
  * choose a tmp name once per Launch
  */
-const jQueryName = randName();
+export const jQueryName = randName();
 
 /**
  * Error message that can be throw if jQuery is not loaded
@@ -36,11 +36,20 @@ export class JQueryAble implements IJQueryAble {
         return new Proxy(new PProxyApi(this, selector, ''), handlerRoot) as any as PJQuery;
     }
 
-    async waitForjQuery(this: PageEx, selector: string, options?: { timeout?: number, polling?: 'mutation' | 'raf' | number }): Promise<ElementHandle[]> {
+    /**
+     * 
+     */
+    async waitForjQuery(this: PageEx, selector: string, options: { timeout?: number, polling?: 'mutation' | 'raf' | number, onTimeout?: 'error' | 'ignore'} = {}): Promise<ElementHandle[]> {
+        const onTimeout = options.onTimeout || 'error';
         const first = await this.jQuery(selector).exec();
         if (first.length)
             return first;
-        await this.waitForFunction(`${jQueryName}('${selector.replace(/'/g, "\\\'")}').toArray().length > 0`, options, selector);
+        try {
+            await this.waitForFunction(`${jQueryName}('${selector.replace(/'/g, "\\\'")}').toArray().length > 0`, options, selector);
+        } catch (e) {
+            if (onTimeout === 'error')
+                throw e;
+        }
         return this.jQuery(selector).exec();
     }
 }

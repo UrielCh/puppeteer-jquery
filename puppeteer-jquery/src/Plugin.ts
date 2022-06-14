@@ -1,4 +1,5 @@
 import { PuppeteerExtraPlugin } from 'puppeteer-extra-plugin'
+import { jQueryName } from './jQueryPlugin';
 import { pageExtend } from './setup';
 
 export interface PluginOptions {
@@ -22,6 +23,13 @@ export class Plugin extends PuppeteerExtraPlugin {
   // PuppeteerPage
   async onPageCreated(page: any): Promise<void> {
     pageExtend(page)
+  }
+
+  /**
+   * @returns get current Jquery internal name
+   */
+  public getJQueryName(): string {
+    return jQueryName;
   }
 }
 
