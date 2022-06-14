@@ -12,6 +12,6 @@
   "dependencies": {
     "puppeteer": "^14.3.0",
     "puppeteer-extra": "^3.2.3",
-    "puppeteer-extra-plugin-jquery": "^0.3.5"
+    "puppeteer-extra-plugin-jquery": "0.3.6"
   }
 }
