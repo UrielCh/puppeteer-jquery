@@ -25,7 +25,7 @@ let jQueryData: string = '';
  */
 export interface IJQueryAble {
     jQuery(selector: string): PJQuery;
-    waitForjQuery(selector: string, options?: { timeout?: number, polling?: 'mutation' | 'raf' | number }): Promise<ElementHandle[]>;
+    waitForjQuery(selector: string, options?: { timeout?: number, polling?: 'mutation' | 'raf' | number, onTimeout?: 'error' | 'ignore' }): Promise<ElementHandle[]>;
 }
 
 /**
