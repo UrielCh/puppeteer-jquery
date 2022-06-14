@@ -39,7 +39,7 @@ export interface PJQuery<TElement = HTMLElement> {
 
     /* F */
 
-    filter(selector_function_selection_elements: String | ((this: TElement, index: number) => boolean)): PJQueryHybrid;    
+    filter(selector_function_selection_elements: String | ((this: TElement, index: number, element: TElement) => boolean)): PJQueryHybrid;    
     find(selector?: string): PJQueryHybrid;
     first(): PJQueryHybrid;
 
