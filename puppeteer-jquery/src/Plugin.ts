@@ -1,23 +1,12 @@
 import { PuppeteerExtraPlugin } from 'puppeteer-extra-plugin'
 import { pageExtend } from './setup';
 
-interface PluginOptions {
+export interface PluginOptions {
 }
 
 /**
- * Modify/increase the default font size in puppeteer.
- *
- * @param {Object} opts - Options
- * @param {Number} [opts.defaultFontSize=20] - Default browser font size
- *
- * @example
- * const puppeteer = require('puppeteer-extra')
- * puppeteer.use(require('puppeteer-extra-plugin-font-size')())
- * // or
- * puppeteer.use(require('puppeteer-extra-plugin-font-size')({defaultFontSize: 18}))
- * const browser = await puppeteer.launch()
  */
-class Plugin extends PuppeteerExtraPlugin {
+export class Plugin extends PuppeteerExtraPlugin {
   constructor(opts?: Partial<PluginOptions>) {
     super(opts)
   }
@@ -36,4 +25,4 @@ class Plugin extends PuppeteerExtraPlugin {
   }
 }
 
-export = (pluginConfig?: Partial<PluginOptions>) => new Plugin(pluginConfig)
+export default (pluginConfig?: Partial<PluginOptions>) => new Plugin(pluginConfig)

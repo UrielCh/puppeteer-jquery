@@ -7,3 +7,4 @@ test/*.map
 test/*.d.ts
 lib
 playwright-jquery/sample/.pnpm-debug.log
+pptr-test/pnpm-lock.yaml
