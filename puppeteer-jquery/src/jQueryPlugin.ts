@@ -41,14 +41,15 @@ export class JQueryAble implements IJQueryAble {
      */
     async waitForjQuery(this: PageEx, selector: string, options: { timeout?: number, polling?: 'mutation' | 'raf' | number, onTimeout?: 'error' | 'ignore'} = {}): Promise<ElementHandle[]> {
         const onTimeout = options.onTimeout || 'error';
-        const first = await this.jQuery(selector).exec();
-        if (first.length)
-            return first;
+        const matches = await this.jQuery(selector).exec();
+        if (matches.length)
+            return matches;
         try {
             await this.waitForFunction(`${jQueryName}('${selector.replace(/'/g, "\\\'")}').toArray().length > 0`, options, selector);
         } catch (e) {
             if (onTimeout === 'error')
                 throw e;
+            return matches; // retunr an 0 len array if onTimeout === 'ignore'
         }
         return this.jQuery(selector).exec();
     }
@@ -166,7 +167,7 @@ class PProxyApi {
                 }
                 if (e instanceof Error) {
                     const { message } = e;
-                    if (~message.indexOf(nonRefErrors[0]) || ~message.indexOf(nonRefErrors[1])) {
+                    if (~message.indexOf(nonRefErrors[0]) || ~message.indexOf(nonRefErrors[1]) || message === 'Execution context was destroyed, most likely because of a navigation.') {
                         await page.evaluate(jQueryData); // define jQuery
                         handle = await page.evaluateHandle(code); // and retry
                     } else {

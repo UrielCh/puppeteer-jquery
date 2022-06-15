@@ -342,6 +342,7 @@ main();
 You may also install `@types/jquery` dependence for more complex JQuery task, in this case always use `jQuery` method, do not use `$` sortcut, the bundeled jQuery will be renamed before being injected. the injection process rename fullname `jQuery` to the rigth value before injections.
 
 ## changelog
+* V0.3.9 fix jQuery.filter() signature
 * V0.3.8 update typing
 * V0.3.7 add getJQueryName(), jQuery.filter(), add onTimeout options
 * V0.3.6 update docs
