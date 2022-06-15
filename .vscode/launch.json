@@ -18,9 +18,8 @@
                 "--colors",
                 "${workspaceFolder}/puppeteer-jquery/test/*.spec.ts",
             ],
-            "protocol": "inspector",
             "skipFiles": [
-                "<node_internals>/**/*.js"
+                "<node_internals>/**/*s"
             ]
         },
         {
@@ -37,9 +36,8 @@
                 "--colors",
                 "${workspaceFolder}/playwright-jquery/test/*.spec.ts",
             ],
-            "protocol": "inspector",
             "skipFiles": [
-                "<node_internals>/**/*.js"
+                "<node_internals>/**/*"
             ]
         },
 

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { PJQuery } from "./PJQuery";
-import { Page, WrapElementHandle, ElementHandle } from "puppeteer";
+import { Page, WrapElementHandle, ElementHandle, SerializableOrJSHandle } from "puppeteer";
 import { PageEx } from './setup';
 import { randName } from './common';
 
@@ -13,7 +13,7 @@ export const jQueryName = randName();
 /**
  * Error message that can be throw if jQuery is not loaded
  */
- const nonRefErrors = [`ReferenceError: Can't find variable: ${jQueryName}`, `${jQueryName} is not defined`];
+const nonRefErrors = [`ReferenceError: Can't find variable: ${jQueryName}`, `${jQueryName} is not defined`];
 
 /**
  * jquery data storage
@@ -39,7 +39,7 @@ export class JQueryAble implements IJQueryAble {
     /**
      * 
      */
-    async waitForjQuery(this: PageEx, selector: string, options: { timeout?: number, polling?: 'mutation' | 'raf' | number, onTimeout?: 'error' | 'ignore'} = {}): Promise<ElementHandle[]> {
+    async waitForjQuery(this: PageEx, selector: string, options: { timeout?: number, polling?: 'mutation' | 'raf' | number, onTimeout?: 'error' | 'ignore' } = {}): Promise<ElementHandle[]> {
         const onTimeout = options.onTimeout || 'error';
         const matches = await this.jQuery(selector).exec();
         if (matches.length)
@@ -82,17 +82,17 @@ const handlerRoot = <ProxyHandler<PProxyApi>>{
              */
             case 'then': // start exec Promise
                 return (...args: any) => {
-                    const lastExec = target.exec(true, false);
+                    const lastExec = target.exec({toArray: true});
                     return lastExec.then(...args);
                 }
             case 'exec': // start exec Promise
                 return (...args: any) => {
-                    return target.exec(true, false);
+                    return target.exec({toArray: true}, args[0]);
                 }
             case 'pojo': // start exec Promise
                 return (...args: any) => {
                     // console.log('csll exec ', args);
-                    return target.exec(true, true);
+                    return target.exec({toArray: true, isPOJO: true}, args[0]);
                 }
         }
         return (...args: any) => {
@@ -115,7 +115,7 @@ const handlerRoot = <ProxyHandler<PProxyApi>>{
                     case 'val':
                     case 'css':
                         const tmp = new PProxyApi(target.page, target.selector, newCode)
-                        return tmp.exec(false, true);
+                        return tmp.exec({ isPOJO: true });
                 }
             }
             // one arg funtion that return serialisable value
@@ -125,7 +125,7 @@ const handlerRoot = <ProxyHandler<PProxyApi>>{
                     case 'css':
                     case 'prop':
                         const tmp = new PProxyApi(target.page, target.selector, newCode)
-                        return tmp.exec(false, true);
+                        return tmp.exec({ isPOJO: true });
                 }
             }
             let child = new PProxyApi(target.page, target.selector, newCode);
@@ -143,25 +143,44 @@ class PProxyApi {
         return 'JQuery selector based on:' + this.page
     }
     /**
-     * @param toArray must be set to true is the object is a jQuery
-     * @param isPOJO must be set to true if waiting for plain data, fals is waiting for HTMLElements
+     * @param type.toArray must be set to true is the object is a jQuery
+     * @param type.isPOJO must be set to true if waiting for plain data, fals is waiting for HTMLElements
+     * @param env variable context to inject
      */
-    async exec<R>(toArray: boolean, isPOJO: boolean): Promise<any | WrapElementHandle<R[]>> {
+    async exec<R>(type: { toArray?: boolean, isPOJO?: boolean } = {}, env?: {[key:string]: SerializableOrJSHandle}): Promise<any | WrapElementHandle<R[]>> {
+        const toArray = type.toArray || false;
+        const isPOJO = type.isPOJO || false;
         let code = `${jQueryName}('${this.selector.replace(/'/g, "\\\'")}')`;
         code += this.code;
         if (toArray)
             code += `.toArray()`;
         let handle;
         const { page } = this;
-        // console.log(code, "POJO is", isPOJO);
+
+        let args: string[] = [];
+        let values: SerializableOrJSHandle[] = [];
+        if (env) {
+            for (const [key, value] of Object.entries(env)) {
+                args.push(key)
+                values.push(value);
+            }
+        }
         try {
             try {
-                handle = await page.evaluateHandle(code);
+                if (args.length) {
+                    // evaluateHandle(string) do not support args
+                    const fnc = new Function(...args, `return ${code};`) as (...args: any[]) => any;
+                    const context = await page.mainFrame().executionContext();
+                    handle = await context.evaluateHandle(fnc, ...values);
+                } else {
+                    handle = await page.evaluateHandle(code, ...values);
+                }
             } catch (e) {
                 if (!jQueryData) {
                     // Sync call, do not want to force nodejs 10+ nor adding js-extra, not using a call back here
                     // nor adding a new Promise statement that would take as much space as this comment...
-                    const jqData = fs.readFileSync(path.join(__dirname, '..', 'data', 'jquery-3.4.1.js'), { encoding: 'utf-8' });
+                    const version = 'jquery-3.4.1.js'
+                    const jqData = fs.readFileSync(path.join(__dirname, '..', 'data', version), { encoding: 'utf-8' });
                     jQueryData = '//# sourceURL=jquery.js\n' + jqData.replace('window.jQuery = window.$ = jQuery', `window.${jQueryName} = jQuery`);
                     // TODO add minify code.
                 }

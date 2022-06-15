@@ -1,4 +1,4 @@
-import { WrapElementHandle } from "puppeteer";
+import { SerializableOrJSHandle, WrapElementHandle } from "puppeteer";
 
 type PJQueryHybrid<TElement = HTMLElement> = PJQuery<TElement> & Promise<PJQuery<TElement>>
 
@@ -104,7 +104,7 @@ export interface PJQuery<TElement = HTMLElement> {
 
     // no way to implement it in a Proxy class
     // (): Promise<WrapElementHandle<any>[]>;
-    exec(): Promise<WrapElementHandle<any>[]>;
+    exec(env?: {[key:string]: SerializableOrJSHandle}): Promise<WrapElementHandle<HTMLElement>[]>;
     // get result as Javascript Plain Object
-    pojo<T = any>(): Promise<T[]>;
+    pojo<T = any>(env?: {[key:string]: SerializableOrJSHandle}): Promise<T[]>;
 }

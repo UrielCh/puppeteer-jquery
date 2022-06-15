@@ -27,7 +27,8 @@ describe('Basic Dom', () => {
         await page.goto('about:blank', { waitUntil: 'domcontentloaded' });
         let expectedTitle = 'Hello, world!';
         await page.jQuery('body').append(`<h1 class="${testclass}">${expectedTitle}</h1>`).exec();
-    }).timeout(2000);
+        expect(true);
+    }).timeout(10000);
 
     it('Get h1.attr()', async () => {
         let value = await page.jQuery('h1').attr('class');
