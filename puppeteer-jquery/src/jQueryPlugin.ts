@@ -187,8 +187,13 @@ class PProxyApi {
                 if (e instanceof Error) {
                     const { message } = e;
                     if (~message.indexOf(nonRefErrors[0]) || ~message.indexOf(nonRefErrors[1]) || message === 'Execution context was destroyed, most likely because of a navigation.') {
-                        await page.evaluate(jQueryData); // define jQuery
-                        handle = await page.evaluateHandle(code); // and retry
+                        try {
+                            await page.evaluate(jQueryData); // define jQuery
+                        } catch(e) {
+                            // should not occur;
+                            console.error(e);
+                        }
+                        handle = await page.evaluateHandle(code, ...values); // and retry
                     } else {
                         throw e;
                     }
