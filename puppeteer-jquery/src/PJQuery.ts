@@ -11,15 +11,17 @@ export interface PJQuery<TElement = HTMLElement> {
 
     add(selector?: string): PJQueryHybrid;
     add(html?: string): PJQueryHybrid;
-    // add( selector, context )
     // addBack(selector?: string): PJQuery;
-    addClass(className: string): PJQueryHybrid;
+    // add(selector: string, context: TElement): this;
+    addBack(selector?: string): this;
+    addClass(className: String): this;
+    // addClass(className: string): PJQueryHybrid;
     addClass(fnc: (index: number, currentClassName: string) => String): PJQueryHybrid;
+    after(content: string, content2?: string): this;
+    after(fnc: (index: number) => TElement | string): this;
     append(content?: string): PJQueryHybrid;
     append(content: (index: number, html: string) => string): PJQueryHybrid;
     // Traversing > Miscellaneous Traversing
-    addBack(selector?: string): PJQuery;
-    addClass(className: String): this;
     attr(attributeName: string): Promise<string>;
     attr(attributeName: string, value: string): this;
 
@@ -34,7 +36,7 @@ export interface PJQuery<TElement = HTMLElement> {
     css(propertyName: string, value: (index: number, value: string) => string | number): this;
 
     /* E */
-
+    each(fnc: (index: number, element: TElement) => any): this;
     eq(index: number): PJQueryHybrid;
 
     /* F */

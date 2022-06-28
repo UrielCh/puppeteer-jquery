@@ -31,6 +31,12 @@ export class Plugin extends PuppeteerExtraPlugin {
   public getJQueryName(): string {
     return jQueryName;
   }
+
+  // crosscompatibility
+  get dependenciesOptions(): string[]{
+    return [];
+  }
+
 }
 
 export default (pluginConfig?: Partial<PluginOptions>) => new Plugin(pluginConfig)
