@@ -1,6 +1,6 @@
 {
   "name": "puppeteer-extra-plugin-jquery",
-  "version": "0.3.11",
+  "version": "0.3.12",
   "description": "Fluent jquery integration for puppeteer in Typescript",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
