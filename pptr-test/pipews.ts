@@ -1,5 +1,6 @@
 import http from 'http';
 import WebSocket, { WebSocketServer } from 'ws';
+import fs from 'fs';
 import pc from 'picocolors';
 
 const SHOW_EVENT = false;
@@ -303,4 +304,64 @@ export class protoRevert {
 
         await new Promise<void>(resolve => server.listen(this.srcPort, resolve));
     }
+
+    public writeSessions(prefix: string) {
+        for (let i = 0; i < this.sessions.length; i++) {
+            const session = this.sessions[i];
+            // const session = protoRev.sessions[protoRev.sessions.length - 1];
+            let code = `async function run${i+1}(cdp: any) {\r\n`;
+            let waitEvents = new Set<string>;
+            const ls = '  ';
+
+            const flushWait = () => {
+                if (waitEvents.size) {
+                    code += `${ls}await cdp.waitForAllEvents(`;
+                    code += [...waitEvents].map(a => `"${a}"`).join(', ');
+                    code += `);\r\n`;
+                    waitEvents.clear();
+                }
+            }
+
+            for (const message of session.logs) {
+                if ('id' in message) {
+                    flushWait();
+                    const { id } = message;
+                    const meta = session.requests.get(id);
+                    if (!meta)
+                        continue;
+                    code += ls;
+                    if (meta.used) {
+                        code += `const ${meta.name} = `;
+                    }
+                    code += `await cdp.${meta.req.method}(`;
+                    if (meta.req.params || meta.req.sessionId) {
+                        let params = JSON.stringify(meta.req.params || {});
+                        params = params.replace(/"\$\{([A-Za-z0-9_.]+)\}"/g, '$1');
+                        //${TargetcreateTarget.targetId}"
+                        code += params;
+                    }
+                    if (meta.req.sessionId) {
+                        code += ', '
+                        code += meta.req.sessionId.replace(/\$\{([A-Za-z0-9_.]+)\}/g, '$1');
+                    }
+                    code += `); // ${meta.req.id}`;
+                    code += '\r\n';
+                } else {
+                    // events
+                    const mevent = message as ProtoEvent;
+                    if (mevent.name) {
+                        // used event;
+                        code += `${ls}const ${mevent.name} = `;
+                        code += `await cdp.${mevent.method}();`;
+                        code += '\r\n';
+                    } else {
+                        waitEvents.add(mevent.method);
+                    }
+                }
+            }
+            code += '}\r\n';
+            fs.writeFileSync(`${prefix}${i + 1}.ts`, code, { encoding: 'utf8' });
+        }
+    }
+
 }
