@@ -2,13 +2,14 @@ import { PageEx } from "puppeteer-extra-plugin-jquery";
 import puppeteer from "puppeteer-extra";
 import { Plugin } from "puppeteer-extra-plugin-jquery";
 /// import { pipePort } from "./pipePort";
-import { pipeWs } from "./pipews";
+import { protoRevert } from "./pipews";
 
 !(async () => {
   puppeteer.use(new Plugin());
   // "C:\Program Files\Google\Chrome\Application\chrome.exe" --profile-directory="bot" --remote-debugging-port=9222
   //  chrome-protocol-proxy.exe
-  await pipeWs(9555, 9222);
+  const protoRev = new protoRevert(9555, 9222);
+  await protoRev.start();
   const browser = await puppeteer.connect({
     browserURL: "http://127.0.0.1:9555",
   });
@@ -26,6 +27,14 @@ import { pipeWs } from "./pipews";
   const cnt = await page.jQuery("span.Counter.js-social-count").text();
   console.log("this project have", cnt, "start");
   // await browser.close();
+
+  // DONE
+  console.log(protoRev.sessions.length);
+  const [session] = protoRev.sessions;
+  // const session = protoRev.sessions[protoRev.sessions.length - 1];
+  for (const message of session.logs) {
+  }
+
 })();
 
 // Debugger.scriptParsed
