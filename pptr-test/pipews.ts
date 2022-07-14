@@ -3,6 +3,7 @@ import WebSocket, { WebSocketServer } from 'ws';
 import pc from 'picocolors';
 
 const SHOW_EVENT = false;
+const SHOW_MESSAGES = false;
 
 interface ProtoRequest {
     id: number;
@@ -17,29 +18,27 @@ interface ProtoResponse {
     result: any;
 }
 
-interface ProtoEvent {
+export interface ProtoEvent {
     method: string;
     sessionId?: string;
     params: any;
+    used?: boolean;
+    name?: string;
 }
 
 interface RespSource {
     requestId: number;
+    logId: number;
     method: string; // can be resove using messages Map
     field: string;
 }
 
 export class protoRevertLink {
-    
-    requests = new Map<number, ProtoRequest>();
-    requestsName = new Map<number, string>();
-    responces = new Map<number, ProtoResponse>();
+    requests = new Map<number, { req: ProtoRequest, resp?: ProtoResponse, name: string, used?: boolean }>();
 
-    recevedValue = new Map<string, RespSource>();
+    recevedValue = new Map<string | number, RespSource>();
     methodCounter = new Map<string, number>();
     logs = [] as Array<ProtoRequest | ProtoEvent>;
-
-
 
     constructor(wsClient: WebSocket.WebSocket, request: http.IncomingMessage, dstPort: number) {
         const queue: Array<WebSocket.RawData | string> = [];
@@ -89,25 +88,75 @@ export class protoRevertLink {
         })
     }
 
-    indexResponce(requestId: number, method: string, data: {[key: string]: any}) {
-        if (!data)
+    indexResponce(requestId: number, method: string, data: { [key: string]: any }) {
+        // if (requestId === 21) debugger; // should index objectId: '-1498025529418368793.5.3'
+        if (!data.result)
             return;
-        for (const [field, value] of Object.entries(data)) {
-            if (typeof value !== 'string') continue;
-            if (value.length > 40) continue; // do not index superlong string
-            if (this.recevedValue.has(value)) continue;
-            this.recevedValue.set(value, {field, method, requestId});
+        for (const [field, value] of Object.entries(data.result)) {
+            this.tryIndexString(method, field, value, requestId, 0);
         }
     }
 
-    private aliasValue(value: string): string | null {
+    tryIndexString = (method: string, field: string, value: any, requestId: number, logId: number) => {
+        if (typeof value === 'string') {
+            // const strValue = value as string;
+            if (value.length > 40) return; // do not index superlong string
+            if (this.recevedValue.has(value)) return;
+            const logId = this.logs.length - 1;
+            this.recevedValue.set(value, { field, method, requestId, logId });
+        }
+        if (typeof value === 'number') {
+            if (value === 0) return; // do not index superlong string
+            if (this.recevedValue.has(value)) return;
+            this.recevedValue.set(value, { field, method, requestId, logId });
+        }
+    }
+
+    indexEvent(event: ProtoEvent) {
+        if (!event)
+            return;
+        // if (event.method === 'Target.targetCreated') debugger;
+        if (!event.params)
+            return;
+        const logId = this.logs.length - 1;
+        for (const [field, value] of Object.entries(event.params)) {
+            if (typeof value === 'string') {
+                this.tryIndexString(event.method, field, value, 0, logId);
+            }
+            // seatch in a second LVL not more
+            if (typeof value === 'object') {
+                for (const [field2, value2] of Object.entries(value as any)) {
+                    this.tryIndexString(event.method, `${field}.${field2}`, value2, 0, logId);
+                }
+            }
+        }
+    }
+
+    private aliasValue(value: string | number): string | null {
         const source = this.recevedValue.get(value);
         if (!source) return null;
-        const name = this.requestsName.get(source.requestId)
+
+        if (source.requestId) {
+            const r = this.requests.get(source.requestId);
+            if (!r)
+                throw Error(`corruption requestId: ${source.requestId} not found`);
+            const name = r.name
+            r.used = true;
+            return '$' + `{${name}.${source.field}}`
+        }
+        // source is an event
+        const event = this.logs[source.logId];
+        if (!event)
+            throw Error('corruption Event not found');
+        const name = event.method.replace(/\./g, '') + source.logId;
+        (event as ProtoEvent).used = true;
+        (event as ProtoEvent).name = name;
         return '$' + `{${name}.${source.field}}`
+
     }
 
     injectVarRequest(req: ProtoRequest) {
+        // if (req.id === 22) debugger; // should inject objectId: '-1498025529418368793.5.3'
         if (req.sessionId) {
             const alias = this.aliasValue(req.sessionId);
             if (alias) req.sessionId = alias;
@@ -115,13 +164,20 @@ export class protoRevertLink {
         if (!req.params)
             return;
         for (const [field, value] of Object.entries(req.params)) {
-            if (typeof value !== 'string') continue;
-            if (value.length > 40) continue; // do not index superlong string
-            const alias = this.aliasValue(value);
-            if (alias) {
-                req.params[field] = alias;
+            if (typeof value === 'string') {
+                if (value.length > 40) continue; // do not index superlong string
+                const alias = this.aliasValue(value);
+                if (alias) {
+                    req.params[field] = alias;
+                }
             }
-            // this.recevedValue.set(value, {field, method, requestId});
+            if (typeof value === 'number') {
+                // if (value.length > 40) continue; // do not index superlong string
+                const alias = this.aliasValue(value);
+                if (alias) {
+                    req.params[field] = alias;
+                }
+            }
         }
     }
 
@@ -146,20 +202,25 @@ export class protoRevertLink {
             const resp = message as ProtoResponse;
             const { id, result, sessionId, ...rest } = resp;
             const req = this.requests.get(id);
-            const method = req?.method || 'ERROR';
-
-            console.log(`Response ${pc.green(id)}: ${pc.yellow(method)} ${pc.green(sessionId || '')}`);
-            this.responces.set(id, resp);
-            this.printNonEmpty(result);
+            if (!req) {
+                return;
+            }
+            const method = req?.req.method || 'ERROR';
+            req.resp = resp;
+            if (SHOW_MESSAGES) {
+                console.log(`Response ${pc.green(id)}: ${pc.yellow(method)} ${pc.green(sessionId || '')}`);
+                this.printNonEmpty(result);
+            }
             this.noRest(rest, 'msg to To Client');
+
             this.indexResponce(id, method, result);
         } else {
+            const event = message as ProtoEvent;
+            this.logs.push(event);
+            this.indexEvent(event);
             if (SHOW_EVENT) {
-                const event = message as ProtoEvent;
-                // this.indexEvent(event);
-                this.logs.push(event);
                 const { method, sessionId, params, ...rest } = message;
-                console.log(`bwr => cli: ${pc.bgMagenta('event')}: ${pc.yellow(method)} ${pc.green(sessionId || '')}`);
+                console.log(`${pc.bgMagenta('EVENT')}: ${pc.yellow(method)} ${pc.green(sessionId || '')}`);
                 this.printNonEmpty(params)
                 this.noRest(rest, 'event to To Client');
             }
@@ -171,21 +232,26 @@ export class protoRevertLink {
             const req = message as ProtoRequest;
             this.injectVarRequest(req)
             const { id, method, sessionId, params, ...rest } = req;
-
+            if (method === 'Runtime.evaluate') {
+                const expression = params.expression as string;
+                if (expression && expression.length > 512) {
+                    params.expression = expression.substring(0, 128) + '...' + expression.substring(expression.length - 128);
+                }
+            }
             // counter use to names requests
-            let cnt = this.methodCounter.get(method) || 0;           
+            let cnt = this.methodCounter.get(method) || 0;
             cnt++;
             this.methodCounter.set(method, cnt);
             let reqName = method.replace(/\./g, '');
             if (cnt > 1)
                 reqName += cnt;
-            this.requestsName.set(id, reqName)
-            this.requests.set(id, req);
-
+            this.requests.set(id, { req, name: reqName });
             this.logs.push(req);
 
-            console.log(`Request  ${pc.green(id)}: ${pc.yellow(method)} ${pc.green(sessionId || '')}`);
-            this.printNonEmpty(params);
+            if (SHOW_MESSAGES) {
+                console.log(`Request  ${pc.green(id)}: ${pc.yellow(method)} ${pc.green(sessionId || '')}`);
+                this.printNonEmpty(params);
+            }
             this.noRest(rest, 'msg to To Browser');
             // message
         } else {
