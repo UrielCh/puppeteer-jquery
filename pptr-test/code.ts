@@ -1,4 +1,7 @@
-async function run(cdp: any) {
+import devtools from "@u4/chrome-remote-interface";
+
+async function run(devtools: devtools) {
+  const cdp = await devtools.connectFirst("browser");
   await cdp.Target.getBrowserContexts(); // 1
   await cdp.Target.setDiscoverTargets({ "discover": true }); // 2
   await cdp.waitForAllEvents("Target.targetCreated");
