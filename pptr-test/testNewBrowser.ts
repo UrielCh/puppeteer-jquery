@@ -15,7 +15,7 @@ import { Plugin } from "puppeteer-extra-plugin-jquery"
   await page.goto('https://github.com/UrielCh/puppeteer-jquery/tree/master/puppeteer-jquery', { waitUntil: 'domcontentloaded' })
   // use waitForjQuery()
   const start = await page.waitForjQuery('span.Counter.js-social-count');
-  console.log('selector match ', start.length, 'elements');
+  console.log('selector match', start.length, 'elements');
   // use any jQuery code.
   const cnt = await page.jQuery('span.Counter.js-social-count').text();
   console.log('this project have', cnt, 'start');

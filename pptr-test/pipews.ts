@@ -24,7 +24,7 @@ export interface ProtoEvent {
     sessionId?: string;
     params: any;
     used?: boolean;
-    name?: string;
+    name: string;
 }
 
 interface RespSource {
@@ -35,11 +35,31 @@ interface RespSource {
 }
 
 export class protoRevertLink {
+    /**
+     * request logs indexed by requestID
+     */
     requests = new Map<number, { req: ProtoRequest, resp?: ProtoResponse, name: string, used?: boolean }>();
-
+    /**
+     * chrome emited values index
+     */
     recevedValue = new Map<string | number, RespSource>();
     methodCounter = new Map<string, number>();
     logs = [] as Array<ProtoRequest | ProtoEvent>;
+
+
+    incUsage(method: string): number {
+        let cnt = (this.methodCounter.get(method) || 0) + 1;
+        this.methodCounter.set(method, cnt);
+        return cnt;
+    }
+
+    nameMessage(name: string, cnt: number) {
+        name = name.replace(/\./g, '');
+        name = name.substring(0,1).toLocaleLowerCase() + name.substring(1);
+        if (cnt === 1)
+            return name;
+        return name + cnt;
+    }
 
     constructor(wsClient: WebSocket.WebSocket, request: http.IncomingMessage, dstPort: number) {
         const queue: Array<WebSocket.RawData | string> = [];
@@ -146,14 +166,12 @@ export class protoRevertLink {
             return '$' + `{${name}.${source.field}}`
         }
         // source is an event
-        const event = this.logs[source.logId];
+        const event = this.logs[source.logId] as ProtoEvent;
         if (!event)
             throw Error('corruption Event not found');
-        const name = event.method.replace(/\./g, '') + source.logId;
-        (event as ProtoEvent).used = true;
-        (event as ProtoEvent).name = name;
+        event.used = true;
+        const name = event.name;
         return '$' + `{${name}.${source.field}}`
-
     }
 
     injectVarRequest(req: ProtoRequest) {
@@ -217,6 +235,10 @@ export class protoRevertLink {
             this.indexResponce(id, method, result);
         } else {
             const event = message as ProtoEvent;
+            const { method } = event;
+            const cnt = this.incUsage(method);
+            event.name = this.nameMessage(method, cnt); // gen a reference name
+    
             this.logs.push(event);
             this.indexEvent(event);
             if (SHOW_EVENT) {
@@ -240,13 +262,8 @@ export class protoRevertLink {
                 }
             }
             // counter use to names requests
-            let cnt = this.methodCounter.get(method) || 0;
-            cnt++;
-            this.methodCounter.set(method, cnt);
-            let reqName = method.replace(/\./g, '');
-            if (cnt > 1)
-                reqName += cnt;
-            this.requests.set(id, { req, name: reqName });
+            const cnt = this.incUsage(method);
+            this.requests.set(id, { req, name: this.nameMessage(method, cnt) });
             this.logs.push(req);
 
             if (SHOW_MESSAGES) {
@@ -260,6 +277,14 @@ export class protoRevertLink {
         }
     }
 }
+
+
+
+
+
+
+
+
 
 
 export class protoRevert {
@@ -305,6 +330,9 @@ export class protoRevert {
         await new Promise<void>(resolve => server.listen(this.srcPort, resolve));
     }
 
+    /**
+     * gen corresponding code
+     */
     public writeSessions(prefix: string) {
         for (let i = 0; i < this.sessions.length; i++) {
             const session = this.sessions[i];
@@ -349,7 +377,7 @@ export class protoRevert {
                 } else {
                     // events
                     const mevent = message as ProtoEvent;
-                    if (mevent.name) {
+                    if (mevent.used) {
                         // used event;
                         code += `${ls}const ${mevent.name} = `;
                         code += `await cdp.${mevent.method}();`;
