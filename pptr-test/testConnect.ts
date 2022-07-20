@@ -31,6 +31,7 @@ import { protoRevert } from "./pipews";
   // write down session data
   protoRev.writeSessions('code');
   console.log('all done');
+  process.exit(0);
 })();
 
 // Debugger.scriptParsed

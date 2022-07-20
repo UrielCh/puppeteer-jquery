@@ -33,7 +33,13 @@ export interface ProtoEvent {
     name: string;
 }
 
-export class protoRevertLink {
+export class ProtoRevertLink {
+    /**
+     * storage for large code chunk
+     */
+    rawData: string[] = [];
+
+
     endpoint: string;
     /**
      * request logs indexed by requestID
@@ -114,7 +120,7 @@ export class protoRevertLink {
         if (!data.result)
             return;
         for (const [field, value] of Object.entries(data.result)) {
-            this.tryIndexString(method, field, value, requestId, 0);
+            this.tryIndexString(method, `result.${field}`, value, requestId, 0);
         }
     }
 
@@ -258,7 +264,9 @@ export class protoRevertLink {
             if (method === 'Runtime.evaluate') {
                 const expression = params.expression as string;
                 if (expression && expression.length > 512) {
-                    params.expression = expression.substring(0, 128) + '...' + expression.substring(expression.length - 128);
+                    //params.expression = expression.substring(0, 128) + '...' + expression.substring(expression.length - 128);
+                    this.rawData.push(expression);
+                    params.expression = `__FILE__RAW__${this.rawData.length}__`;
                 }
             }
             // counter use to names requests
@@ -276,21 +284,21 @@ export class protoRevertLink {
             // Client can not send event to browser.
         }
     }
-
     public writeSession(): string {
         const session = this;
         let waitEvents = new Set<string>;
         const ls = '  ';
-        let code = ''
+        let code = '';
+        let waitCnt = 0;
         const flushWait = () => {
             if (waitEvents.size) {
-                code += `${ls}await cdp.waitForAllEvents(`;
+                code += `${ls}const wait${++waitCnt} = await cdp.waitForAllEvents(`;
                 code += [...waitEvents].map(a => `"${a}"`).join(', ');
-                code += `);\r\n`;
+                code += `); // EVENT\r\n`;
                 waitEvents.clear();
             }
         }
-        code += `${ls}// connecte to ${this.endpoint}`
+        code += `${ls}// connecte to ${this.endpoint}\r\n`
         for (const message of session.logs) {
             if ('id' in message) {
                 flushWait();
@@ -306,7 +314,10 @@ export class protoRevertLink {
                 if (meta.req.params || meta.req.sessionId) {
                     let params = JSON.stringify(meta.req.params || {});
                     params = params.replace(/"\$\{([A-Za-z0-9_.]+)\}"/g, '$1');
-                    //${TargetcreateTarget.targetId}"
+                    const fileRef = params.match(/"__FILE__RAW__(\d)__"/);
+                    if (fileRef) {
+                        params = params.replace(fileRef[0], `getContent(${fileRef[1]})`);
+                    }
                     code += params;
                 }
                 if (meta.req.sessionId) {
@@ -321,14 +332,53 @@ export class protoRevertLink {
                 if (mevent.used) {
                     // used event;
                     code += `${ls}const ${mevent.name} = `;
-                    code += `await cdp.${mevent.method}();`;
+                    code += `await cdp.${mevent.method}(); // EVENT`;
                     code += '\r\n';
                 } else {
                     waitEvents.add(mevent.method);
                 }
             }
         }
-        return code;
+        const lines = code.split('\r\n');
+        const linesout = [] as string[];
+        let prevs = [] as string[];
+        let eventsWait = [] as RegExpMatchArray[];
+
+        const releaseLine = (prev: string ) => {
+            for (const m of eventsWait) {
+                if (m[3].includes("waitForAllEvents"))
+                    linesout.push(`${m[1]}const ${m[2]} = ${m[3]};`);
+                else
+                    linesout.push(`${m[1]}const ${m[2]}P = ${m[3]};`);
+            }
+            linesout.push(prev);
+            for (const m of eventsWait) {
+                if (m[3].includes("waitForAllEvents"))
+                    linesout.push(`${m[1]}await ${m[2]};`);
+                else
+                    linesout.push(`${m[1]}const ${m[2]} = await ${m[2]}P;`);
+            }
+            eventsWait.length = 0;
+        }
+
+        for (const line of lines) {
+            let m1 = line.match(/^( +)const ([a-zA-Z0-9]+) = await (cdp.+); \/\/ EVENT$/);
+            if (m1) {
+                eventsWait.push(m1);
+                continue;
+            }
+            prevs.push(line);
+            if (prevs.length >= 2) {
+                const prev = prevs.shift()!;
+                releaseLine(prev)
+            }
+        }
+        while (prevs.length) {
+            const prev = prevs.shift()!;
+            releaseLine(prev)
+        }
+        linesout.push('');
+        return linesout.join('\r\n');
     }
 }
 

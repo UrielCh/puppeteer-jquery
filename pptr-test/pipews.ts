@@ -1,11 +1,11 @@
 import http from 'http';
 import WebSocket, { WebSocketServer } from 'ws';
 import fs from 'fs';
-import { protoRevertLink } from './protoRevertLink';
+import { ProtoRevertLink } from './protoRevertLink';
 
 export class protoRevert {
     constructor(private srcPort: number, private dstPort: number) { }
-    public sessions: protoRevertLink[] = [];
+    public sessions: ProtoRevertLink[] = [];
     logs = [] as Array<{requestUrl: string, response: any}>;
 
     private async requestListener(req: http.IncomingMessage, res: http.ServerResponse) {
@@ -38,7 +38,7 @@ export class protoRevert {
         const server = http.createServer((req, res) => this.requestListener(req, res));
 
         wss.on('connection', (ws: WebSocket.WebSocket, request: http.IncomingMessage) => {
-            this.sessions.push(new protoRevertLink(ws, request, this.dstPort));
+            this.sessions.push(new ProtoRevertLink(ws, request, this.dstPort));
         });
 
         server.on('upgrade', function upgrade(request, socket, head) {
@@ -56,18 +56,36 @@ export class protoRevert {
      */
     public writeSessions(prefix: string) {
         for (let i = 0; i < this.sessions.length; i++) {
-            const session = this.sessions[i];
+            const session: ProtoRevertLink = this.sessions[i];
             let code = "";
-            code += 'import devtools from "@u4/chrome-remote-interface";\r\n';
+            code += 'import Devtools from "@u4/chrome-remote-interface";\r\n';
+            if (session.rawData.length)
+            code += 'import fs from "fs";\r\n';
+
             code += "\r\n";
+
+            if (session.rawData.length) {
+                code += 'function getContent(id: number): string {\r\n';
+                code += '  return fs.readFileSync("raw" + id + ".js", {encoding: "utf-8"});\r\n';
+                code += '}\r\n';                  
+            }
+
+            for (let id = 0; id < session.rawData.length; id++) {
+                fs.writeFileSync("raw" + (id+1) + ".js", session.rawData[id], {encoding: 'utf8'});
+            }
+
             // const session = protoRev.sessions[protoRev.sessions.length - 1];
-            code += `async function run${i+1}() {\r\n`;
+            code += `async function run${i+1}(devtools: Devtools) {\r\n`;
             if (session.endpoint.includes('devtools/browser'))
                 code += '  const cdp = await devtools.connectFirst("browser");';
             else
                 code += '  const cdp = await devtools.connectFirst("page");';
+            code += '\r\n';
             code += session.writeSession();
             code += '}\r\n';
+            code += '\r\n';
+            code += `run${i+1}(new Devtools());\r\n`;
+            
             fs.writeFileSync(`${prefix}${i + 1}.ts`, code, { encoding: 'utf8' });
         }
     }
